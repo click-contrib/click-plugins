@@ -8,6 +8,7 @@ python:
   - "pypy3"
 
 install:
+  - pip instal coveralls
   - pip install -e .[test]
 
 script:
