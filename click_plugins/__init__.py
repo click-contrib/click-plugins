@@ -13,6 +13,11 @@ entry-points.
     @click.group()
     def cli():
         '''Commandline interface for something.'''
+
+    @cli.command()
+    @click.argument('arg')
+    def subcommand(arg):
+        '''A subcommand for something else'''
 """
 
 
@@ -20,13 +25,13 @@ from .core import with_plugins
 
 
 __version__ = '1.0'
-__author__ = 'Kevin Wurster'
+__author__ = 'Kevin Wurster, Sean Gillies'
 __email__ = 'wursterk@gmail.com'
 __source__ = 'https://github.com/geowurster/click_plugins'
 __license__ = '''
 New BSD License
 
-Copyright (c) 2015, Kevin D. Wurster
+Copyright (c) 2015, Kevin D. Wurster, Sean C. Gillies
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

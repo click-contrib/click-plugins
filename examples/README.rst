@@ -21,7 +21,7 @@ First get into the example directory:
 
     $ cd examples/plugins
 
-Install the main package:
+Install the main package (printer):
 
 .. code-block:: console
 
@@ -45,7 +45,7 @@ And run the commandline utility to see the usage:
 
     Commands:
       lower  Convert to lower case.
-      upper  Convert to uppser case.
+      upper  Convert to upper case.
 
 
 Try running ``cat README.rst | printer upper`` to convert this file to upper-case.
@@ -60,7 +60,7 @@ Install it:
 
     $ pip install PrinterStyle/
 
-And get the ``printer`` usage again, now with two additional commands:
+And get the ``printer`` usage again, now with three additional commands:
 
 .. code-block:: console
 
@@ -90,7 +90,7 @@ Broken Plugins
 Plugins that trigger an exception on load are flagged in the usage and the full
 traceback can be viewed by executing the command.
 
-Install the included broken plugin, which should give us a bold styling option:
+Install the included broken plugin, which we expect to give us a bold styling option:
 
 .. code-block:: console
 

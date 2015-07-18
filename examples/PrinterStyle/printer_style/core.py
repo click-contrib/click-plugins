@@ -29,7 +29,7 @@ def background(infile, outfile, color):
     """
 
     for line in infile:
-        click.echo(line, file=outfile, color=color)
+        click.secho(line, file=outfile, color=color)
 
 
 @click.command()

@@ -6,9 +6,11 @@ Commandline interface for printer
 from pkg_resources import iter_entry_points
 
 import click
+from click_plugins import with_plugins
 
 
-@click.group(plugins=iter_entry_points('printer.plugins'))
+@with_plugins(iter_entry_points('printer.plugins'))
+@click.group()
 def cli():
 
     """
