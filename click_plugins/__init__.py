@@ -26,8 +26,8 @@ from .core import with_plugins
 
 __version__ = '1.0'
 __author__ = 'Kevin Wurster, Sean Gillies'
-__email__ = 'wursterk@gmail.com'
-__source__ = 'https://github.com/geowurster/click_plugins'
+__email__ = 'wursterk@gmail.com, sean.gillies@gmail.com'
+__source__ = 'https://github.com/click-contrib/click-plugins'
 __license__ = '''
 New BSD License
 

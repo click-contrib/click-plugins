@@ -1,5 +1,5 @@
 """
-Core components for printer_style
+Core components for `PrintItStyle`
 """
 
 

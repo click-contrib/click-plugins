@@ -1,5 +1,6 @@
+include AUTHORS.txt
+include CHANGES.txt
 include LICENSE.txt
 include MANIFEST.in
-include README.md
-include setup.py
+include README.rst
 recursive-include tests *.py

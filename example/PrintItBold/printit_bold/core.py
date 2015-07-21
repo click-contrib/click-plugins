@@ -1,5 +1,5 @@
 """
-Add bold styling to `printer`
+Add bold styling to `printit`
 """
 
 

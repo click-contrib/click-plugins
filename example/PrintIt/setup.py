@@ -2,7 +2,7 @@
 
 
 """
-Setup script for `printer`
+Setup script for `PrintIt`
 """
 
 
@@ -10,11 +10,11 @@ from setuptools import setup
 
 
 setup(
-    name='printer',
+    name='PrintIt',
     version='0.1dev0',
-    packages=['printer'],
+    packages=['printit'],
     entry_points='''
         [console_scripts]
-        printer=printer.cli:cli
+        printit=printit.cli:cli
     '''
 )

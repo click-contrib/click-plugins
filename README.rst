@@ -8,7 +8,7 @@ click-plugins
 .. image:: https://coveralls.io/repos/click-contrib/click-plugins/badge.svg?branch=master&service=github
     :target: https://coveralls.io/github/click-contrib/click-plugins?branch=master
 
-An extension module for `click <https://github.com/mitsuhiko/click>`_ to enable registering
+An extension module for `click <https://github.com/mitsuhiko/click>`_ to register
 external CLI commands via setuptools entry-points.
 
 
@@ -16,24 +16,25 @@ Why?
 ----
 
 Lets say you develop a commandline interface and someone requests a new feature
-that is absolutely related to your project but would be very difficult to integrate
-into the current codebase, or maybe its just too domain specific to be supported
-directly.  Rather than developing a separate standalone utility you could offer
-up a `setuptools entry point <https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
+that is absolutely related to your project but would have negative consequences
+like additional dependencies, major refactoring, or maybe its just too domain
+specific to be supported directly.  Rather than developing a separate standalone
+utility you could offer up a `setuptools entry point <https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
 that allows others to use your commandline utility as a home for their related
 sub-commands.  You get to choose where these sub-commands or sub-groups CAN be
-registered but the plugin developer gets to choose where it IS registered.  You
-could have all plugins register alongside the core commands, in a special sub-group,
-across multiple sub-groups, or some combination.
+registered but the plugin developer gets to choose they ARE registered.  You
+could have all plugins register alongside the core commands, in a special
+sub-group, across multiple sub-groups, or some combination.
 
 
 Enabling Plugins
 ----------------
 
-For a more detailed example see the `examples <js/examples>`_ section.
+For a more detailed example see the `examples <https://github.com/click-contrib/click-plugins/tree/master/examples>`_ section.
 
-The only requirement is decorating ``click.group()`` with another decorator
-that attaches the external ``click.command()`` or ``click.group()``.
+The only requirement is decorating ``click.group()`` with ``click_plugins.with_plugins()``
+which handles attaching external commands and groups.  In this case the core CLI developer
+registers CLI plugins from ``core_package.cli_plugins``.
 
 .. code-block:: python
 
@@ -43,7 +44,7 @@ that attaches the external ``click.command()`` or ``click.group()``.
     from click_plugins import with_plugins
 
 
-    @with_plugins(iter_entry_points('yourpackage.cli_plugins'))
+    @with_plugins(iter_entry_points('core_package.cli_plugins'))
     @click.group()
     def cli():
         """Commandline interface for yourpackage."""
@@ -57,10 +58,7 @@ Developing Plugins
 ------------------
 
 Plugin developers need to register their sub-commands or sub-groups to an
-entry-point
-
-same entry point
-in their ``setup.py``.
+entry-point in their ``setup.py`` that is loaded by the core package.
 
 .. code-block:: python
 
@@ -71,10 +69,10 @@ in their ``setup.py``.
         version='0.1',
         py_modules=['yourscript'],
         install_requires=[
-            'Click',
+            'click',
         ],
         entry_points='''
-            [console_scripts]
+            [core_package.cli_plugins]
             cool_subcommand=yourscript.cli:cool_subcommand
             another_subcommand=yourscript.cli:another_subcommand
         ''',
@@ -98,17 +96,17 @@ and if the sub-command or group is executed the entire traceback is printed.
 Best Practices and Extra Credit
 -------------------------------
 
-Opening a CLI to external plugins encourages other developers to independently
-extend functionality on their own but their is no guarantee that their own
-features will be "on brand".  Plugin developers are almost certainly already
-using features in the core package the CLI belongs to so defining commonly used
-arguments and options in one place lets plugin developers reuse these flags to
-produce a more cohesive CLI.  If the CLI is simple maybe just define them at
-the top of ``yourpackage/cli.py`` or for more complex packages ``yourpackage/cli/options.py``.
-These common options need to be easy to find and be well documented so that
-plugin developers know what variable to give to their sub-command's function
-and what object they can expect to receive.  Don't forget to document non-obvious
-callbacks.
+Opening a CLI to plugins encourages other developers to independently extend
+functionality independently but their is no guarantee these new features will
+be "on brand".  Plugin developers are almost certainly already using features
+in the core package the CLI belongs to so defining commonly used arguments and
+options in one place lets plugin developers reuse these flags to produce a more
+cohesive CLI.  If the CLI is simple maybe just define them at the top of
+``yourpackage/cli.py`` or for more complex packages something like
+``yourpackage/cli/options.py``.  These common options need to be easy to find
+and be well documented so that plugin developers know what variable to give to
+their sub-command's function and what object they can expect to receive.  Don't
+forget to document non-obvious callbacks.
 
 Keep in mind that plugin developers also have access to the parent group's
 ``ctx.obj``, which is very useful for passing things like verbosity levels or
@@ -167,11 +165,23 @@ Developing
     $ git clone https://github.com/click-contrib/click-plugins.git
     $ cd click-plugins
     $ virtualenv venv && source venv/bin/activate
-    $ pip install -e .[test]
+    $ pip install -e .[dev]
     $ py.test tests --cov click_plugins --cov-report term-missing
+
+
+Changelog
+---------
+
+See ``CHANGES.txt``
+
+
+Authors
+-------
+
+See ``AUTHORS.txt``
 
 
 License
 -------
 
-See ``LICENSE.txt``.
+See ``LICENSE.txt``
