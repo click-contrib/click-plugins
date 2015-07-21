@@ -49,7 +49,7 @@ setup(
     description="An extension module for click to enable registering CLI commands "
                 "via setuptools entry-points.",
     extras_require={
-        'test': [
+        'dev': [
             'pytest',
             'pytest-cov'
         ],

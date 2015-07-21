@@ -1,5 +1,5 @@
 """
-Commandline interface for printer
+Commandline interface for PrintIt
 """
 
 
@@ -9,7 +9,7 @@ import click
 from click_plugins import with_plugins
 
 
-@with_plugins(iter_entry_points('printer.plugins'))
+@with_plugins(iter_entry_points('printit.plugins'))
 @click.group()
 def cli():
 
@@ -19,7 +19,7 @@ def cli():
     \b
     For example:
     \b
-        $ cat README.rst | printer lower
+        $ cat README.rst | printit lower
     """
 
 
