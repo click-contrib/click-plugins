@@ -30,7 +30,7 @@ def with_plugins(plugins):
 
     def decorator(group):
         if not isinstance(group, click.Group):
-            raise TypeError("Plugins can only be attacked to an instance of click.Group()")
+            raise TypeError("Plugins can only be attached to an instance of click.Group()")
 
         for entry_point in plugins or ():
             try:
