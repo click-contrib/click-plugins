@@ -59,7 +59,7 @@ setup(
     keywords='click plugin setuptools entry-point',
     license="New BSD",
     long_description=long_desc,
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     url=source,
     version=version,
     zip_safe=True
