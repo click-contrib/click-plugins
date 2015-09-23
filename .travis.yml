@@ -1,15 +1,21 @@
 language: python
 
+sudo: false
+cache:
+  directories:
+    - ~/.cache/pip
+
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "pypy"
-  - "pypy3"
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - pypy
+  - pypy3
 
 install:
   - pip install coveralls
-  - pip install -e .[dev]
+  - pip install -e .\[dev\]
 
 script:
   - py.test tests --cov click_plugins --cov-report term-missing
