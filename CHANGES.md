@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.0.2 - 2015-09-23
+------------------
+
+- General packaging and Travis-CI improvements.
+- Don't include tests in MANIFEST.in - #8
+
+
 1.0.1 - 2015-08-20
 ------------------
 

@@ -6,13 +6,14 @@ Setup script for click-plugins
 """
 
 
+import codecs
 import os
 
 from setuptools import find_packages
 from setuptools import setup
 
 
-with open('README.rst') as f:
+with codecs.open('README.rst', encoding='utf-8') as f:
     long_desc = f.read().strip()
 
 
@@ -51,7 +52,9 @@ setup(
     extras_require={
         'dev': [
             'pytest',
-            'pytest-cov'
+            'pytest-cov',
+            'wheel',
+            'coveralls'
         ],
     },
     include_package_data=True,
