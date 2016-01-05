@@ -164,8 +164,7 @@ Developing
 
     $ git clone https://github.com/click-contrib/click-plugins.git
     $ cd click-plugins
-    $ virtualenv venv && source venv/bin/activate
-    $ pip install -e .[dev]
+    $ pip install -e .\[dev\]
     $ py.test tests --cov click_plugins --cov-report term-missing
 
 
