@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.3 - 2016-01-05
+------------------
+
+- Include tests in MANIFEST.in - See further discussion in #8
+
+
 1.0.2 - 2015-09-23
 ------------------
 
