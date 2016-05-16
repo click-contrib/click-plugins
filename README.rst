@@ -30,7 +30,7 @@ sub-group, across multiple sub-groups, or some combination.
 Enabling Plugins
 ----------------
 
-For a more detailed example see the `examples <https://github.com/click-contrib/click-plugins/tree/master/examples>`_ section.
+For a more detailed example see the `examples <https://github.com/click-contrib/click-plugins/tree/master/example>`_ section.
 
 The only requirement is decorating ``click.group()`` with ``click_plugins.with_plugins()``
 which handles attaching external commands and groups.  In this case the core CLI developer
