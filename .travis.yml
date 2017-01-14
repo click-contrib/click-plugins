@@ -17,7 +17,7 @@ install:
   - pip install -e .\[dev\]
 
 script:
-  - py.test tests --cov click_plugins --cov-report term-missing
+  - pytest --cov click_plugins --cov-report term-missing
 
 after_success:
   - coveralls
