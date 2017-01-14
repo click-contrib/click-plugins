@@ -1,3 +1,6 @@
+"""Test core ``click-plugins`` functionality."""
+
+
 from pkg_resources import EntryPoint
 from pkg_resources import iter_entry_points
 from pkg_resources import working_set

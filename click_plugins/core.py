@@ -75,15 +75,19 @@ class BrokenCommand(click.Command):
         # the command is not functioning properly
         prog_name = os.path.basename(sys.argv and sys.argv[0] or __file__)
         self.short_help = (
-            "{icon} Warning: could not load plugin.  See: "
+            u"{icon} Warning: could not load plugin.  See: "
             "'$ {prog_name} {name} --help'.".format(
                 icon=icon, prog_name=prog_name, name=name))
 
         # Override the command's long help with the exception traceback
+        if sys.version_info.major == 2:  # pragma: no cover
+            tb = traceback.format_exc()
+        else:
+            tb = traceback.format_exc(chain=True)
         self.help = (
             "\nWarning: entry point could not be loaded. Contact "
             "its author for help.\n\n\b\n".format(os.linesep)
-            + traceback.format_exc(chain=False))
+            + tb)
 
     def invoke(self, ctx):
 
