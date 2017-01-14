@@ -14,7 +14,7 @@ python:
 
 install:
   - pip install coveralls
-  - pip install -e .\[dev\]
+  - pip install -e .\[all\]
 
 script:
   - pytest --cov click_plugins --cov-report term-missing
