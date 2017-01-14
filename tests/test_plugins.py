@@ -114,7 +114,7 @@ def test_group_chain(runner):
         assert ep.name in result.output
 
     # Same as above but the sub-group has plugins
-    @with_plugins(plugins=iter_entry_points('_test_click_plugins.test_plugins'))
+    @with_plugins(iter_entry_points('_test_click_plugins.test_plugins'))
     @good_cli.group()
     def sub_cli_plugins():
         """Sub CLI with plugins."""

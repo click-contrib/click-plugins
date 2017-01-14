@@ -8,7 +8,7 @@ import traceback
 import click
 
 
-def with_plugins(plugins):
+def with_plugins(entry_points):
 
     """A decorator to register external CLI commands to an instance of
     ``click.Group()``.
@@ -30,7 +30,7 @@ def with_plugins(plugins):
                 "Plugins can only be attached to an instance of "
                 "'click.Group()'.")
 
-        for ep in plugins:
+        for ep in entry_points:
             try:
                 group.add_command(ep.load())
             except Exception:
