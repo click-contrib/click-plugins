@@ -1,8 +1,11 @@
+"""``pytest`` fixtures."""
+
+
 from click.testing import CliRunner
 
 import pytest
 
 
 @pytest.fixture(scope='function')
-def runner(request):
+def runner():
     return CliRunner()
