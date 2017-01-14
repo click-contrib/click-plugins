@@ -66,7 +66,7 @@ class BrokenCommand(click.Command):
 
         click.Command.__init__(self, name)
 
-        if os.environ.get('CLICK_PLUGINS_HONESTLY'):  # pragma no cover
+        if os.environ.get('CLICK_PLUGINS_HONESTLY') == 'TRUE':
             icon = u'\U0001F4A9'
         else:
             icon = u'\u2020'

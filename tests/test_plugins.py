@@ -1,9 +1,11 @@
 from pkg_resources import EntryPoint
 from pkg_resources import iter_entry_points
 from pkg_resources import working_set
+import os
 
 import click
 from click_plugins import with_plugins
+from click_plugins.core import BrokenCommand
 import pytest
 
 
@@ -12,13 +14,13 @@ import pytest
 @click.argument('arg')
 def cmd1(arg):
     """Test command 1"""
-    click.echo('passed')
+    click.echo('passed cmd1 with arg: {}'.format(arg))
 
 @click.command()
 @click.argument('arg')
 def cmd2(arg):
     """Test command 2"""
-    click.echo('passed')
+    click.echo('passed cmd2 with arg: {}'.format(arg))
 
 
 # Manually register plugins in an entry point and put broken plugins in a
@@ -61,6 +63,7 @@ def good_cli():
     """Good CLI group."""
     pass
 
+
 @with_plugins(iter_entry_points('_test_click_plugins.broken_plugins'))
 @click.group()
 def broken_cli():
@@ -91,7 +94,8 @@ def test_register_and_run(runner):
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
         cmd_result = runner.invoke(good_cli, [ep.name, 'something'])
         assert cmd_result.exit_code is 0
-        assert cmd_result.output.strip() == 'passed'
+        assert cmd_result.output.strip() \
+            == 'passed {} with arg: something'.format(ep.name)
 
 
 def test_broken_register_and_run(runner):
@@ -141,7 +145,7 @@ def test_group_chain(runner):
     # Execute one of the sub-group's commands
     result = runner.invoke(good_cli, ['sub_cli_plugins', 'cmd1', 'something'])
     assert result.exit_code is 0
-    assert result.output.strip() == 'passed'
+    assert result.output.strip() == 'passed cmd1 with arg: something'
 
 
 def test_exception():
@@ -153,3 +157,16 @@ def test_exception():
         @click.command()
         def cli():
             """Whatever"""
+
+
+@pytest.mark.parametrize('enabled,code', [
+    ('TRUE', u'\U0001F4A9'),
+    ('FALSE', u'\u2020')])
+def test_honestly(enabled, code):
+    var = 'CLICK_PLUGINS_HONESTLY'
+    try:
+        os.environ[var] = enabled
+        cmd = BrokenCommand('test_honestly')
+        assert cmd.short_help.startswith(code)
+    finally:
+        os.environ.pop(var, None)
