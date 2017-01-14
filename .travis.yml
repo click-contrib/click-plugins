@@ -1,9 +1,7 @@
 language: python
 
 sudo: false
-cache:
-  directories:
-    - ~/.cache/pip
+cache: pip
 
 python:
   - 2.7
