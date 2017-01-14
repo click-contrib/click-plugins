@@ -68,14 +68,22 @@ def broken_cli():
     pass
 
 
-def test_registered():
-    # Make sure the plugins are properly registered.  If this test fails it
-    # means that some of the for loops in other tests may not be executing.
-    assert len([ep for ep in iter_entry_points('_test_click_plugins.test_plugins')]) > 1
-    assert len([ep for ep in iter_entry_points('_test_click_plugins.broken_plugins')]) > 1
+@pytest.mark.parametrize('entry_point,gt', [
+    ('_test_click_plugins.test_plugins', 1),
+    ('_test_click_plugins.broken_plugins', 1)])
+def test_registered(entry_point, gt):
+
+    """Make sure the plugins are properly registered.  If this test
+    fails it means that some of the for loops in other tests may not
+    be executing.
+    """
+
+    assert len(list(iter_entry_points(entry_point))) > 1
 
 
 def test_register_and_run(runner):
+
+    """Make sure all registered commands can run."""
 
     result = runner.invoke(good_cli)
     assert result.exit_code is 0
@@ -87,6 +95,8 @@ def test_register_and_run(runner):
 
 
 def test_broken_register_and_run(runner):
+
+    """Broken commands produce different help text."""
 
     result = runner.invoke(broken_cli)
     assert result.exit_code is 0
@@ -100,8 +110,11 @@ def test_broken_register_and_run(runner):
 
 def test_group_chain(runner):
 
-    # Attach a sub-group to a CLI and get execute it without arguments to make
-    # sure both the sub-group and all the parent group's commands are present
+    """Attach a sub-group to a CLI and get execute it without arguments
+    to make sure both the sub-group and all the parent group's commands
+    are present.
+    """
+
     @good_cli.group()
     def sub_cli():
         """Sub CLI."""
@@ -132,7 +145,9 @@ def test_group_chain(runner):
 
 
 def test_exception():
-    # Decorating something that isn't a click.Group() should fail
+
+    """Decorating something that isn't a click.Group() should fail."""
+
     with pytest.raises(TypeError):
         @with_plugins([])
         @click.command()
