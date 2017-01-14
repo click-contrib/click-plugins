@@ -79,11 +79,14 @@ class BrokenCommand(click.Command):
             "'$ {prog_name} {name} --help'.".format(
                 icon=icon, prog_name=prog_name, name=name))
 
-        # Override the command's long help with the exception traceback
-        if sys.version_info.major == 2:  # pragma: no cover
-            tb = traceback.format_exc()
-        else:
+        # Override the command's long help with the exception traceback.
+        # The call to 'traceback.format_exec()' function attempts to
+        # access 'Exception.__context__' which doesn't exist on Python
+        # 3.3 and 3.4, but appears to exist on 2.7 and >= 3.5.
+        if sys.version_info >= (3, 5) or sys.version[:2] == (2, 7):
             tb = traceback.format_exc(chain=True)
+        else:
+            tb = traceback.format_exc()
         self.help = (
             "\nWarning: entry point could not be loaded. Contact "
             "its author for help.\n\n\b\n".format(os.linesep)
