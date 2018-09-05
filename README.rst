@@ -97,7 +97,7 @@ Best Practices and Extra Credit
 -------------------------------
 
 Opening a CLI to plugins encourages other developers to independently extend
-functionality independently but their is no guarantee these new features will
+functionality independently but there is no guarantee these new features will
 be "on brand".  Plugin developers are almost certainly already using features
 in the core package the CLI belongs to so defining commonly used arguments and
 options in one place lets plugin developers reuse these flags to produce a more
