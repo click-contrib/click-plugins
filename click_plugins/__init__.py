@@ -31,7 +31,7 @@ __source__ = 'https://github.com/click-contrib/click-plugins'
 __license__ = '''
 New BSD License
 
-Copyright (c) 2015-2016, Kevin D. Wurster, Sean C. Gillies
+Copyright (c) 2015-2018, Kevin D. Wurster, Sean C. Gillies
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
