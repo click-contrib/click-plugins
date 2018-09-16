@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.4 - 2018-09-15
+------------------
+
+- Preemptive fix for a breaking change in Click v7.  CLI command names generated from functions with underscores will have dashes instead of underscores.  See https://github.com/click-contrib/click-plugins/issues/19.
+
+
 1.0.3 - 2016-01-05
 ------------------
 
