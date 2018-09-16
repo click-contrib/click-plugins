@@ -24,14 +24,14 @@ entry-points.
 from click_plugins.core import with_plugins
 
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __author__ = 'Kevin Wurster, Sean Gillies'
 __email__ = 'wursterk@gmail.com, sean.gillies@gmail.com'
 __source__ = 'https://github.com/click-contrib/click-plugins'
 __license__ = '''
 New BSD License
 
-Copyright (c) 2015-2016, Kevin D. Wurster, Sean C. Gillies
+Copyright (c) 2015-2018, Kevin D. Wurster, Sean C. Gillies
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
