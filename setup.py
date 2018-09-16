@@ -51,7 +51,7 @@ setup(
                 "via setuptools entry-points.",
     extras_require={
         'dev': [
-            'pytest',
+            'pytest>=3',
             'pytest-cov',
             'wheel',
             'coveralls'

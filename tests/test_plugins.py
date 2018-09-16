@@ -115,18 +115,18 @@ def test_group_chain(runner):
 
     # Same as above but the sub-group has plugins
     @with_plugins(plugins=iter_entry_points('_test_click_plugins.test_plugins'))
-    @good_cli.group()
+    @good_cli.group(name='sub-cli-plugins')
     def sub_cli_plugins():
         """Sub CLI with plugins."""
         pass
 
-    result = runner.invoke(good_cli, ['sub_cli_plugins'])
+    result = runner.invoke(good_cli, ['sub-cli-plugins'])
     assert result.exit_code is 0
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
         assert ep.name in result.output
 
     # Execute one of the sub-group's commands
-    result = runner.invoke(good_cli, ['sub_cli_plugins', 'cmd1', 'something'])
+    result = runner.invoke(good_cli, ['sub-cli-plugins', 'cmd1', 'something'])
     assert result.exit_code is 0
     assert result.output.strip() == 'passed'
 

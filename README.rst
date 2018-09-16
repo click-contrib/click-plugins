@@ -165,7 +165,7 @@ Developing
     $ git clone https://github.com/click-contrib/click-plugins.git
     $ cd click-plugins
     $ pip install -e .\[dev\]
-    $ py.test tests --cov click_plugins --cov-report term-missing
+    $ pytest tests --cov click_plugins --cov-report term-missing
 
 
 Changelog

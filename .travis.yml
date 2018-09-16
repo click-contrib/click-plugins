@@ -7,9 +7,9 @@ cache:
 
 python:
   - 2.7
-  - 3.3
   - 3.4
   - 3.5
+  - 3.6
   - pypy
   - pypy3
 
@@ -18,7 +18,7 @@ install:
   - pip install -e .\[dev\]
 
 script:
-  - py.test tests --cov click_plugins --cov-report term-missing
+  - pytest tests --cov click_plugins --cov-report term-missing
 
 after_success:
   - coveralls
