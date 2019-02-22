@@ -78,23 +78,23 @@ def test_registered():
 def test_register_and_run(runner):
 
     result = runner.invoke(good_cli)
-    assert result.exit_code is 0
+    assert result.exit_code == 0
 
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
         cmd_result = runner.invoke(good_cli, [ep.name, 'something'])
-        assert cmd_result.exit_code is 0
+        assert cmd_result.exit_code == 0
         assert cmd_result.output.strip() == 'passed'
 
 
 def test_broken_register_and_run(runner):
 
     result = runner.invoke(broken_cli)
-    assert result.exit_code is 0
+    assert result.exit_code == 0
     assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
 
     for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
         cmd_result = runner.invoke(broken_cli, [ep.name])
-        assert cmd_result.exit_code is not 0
+        assert cmd_result.exit_code != 0
         assert 'Traceback' in cmd_result.output
 
 
@@ -108,7 +108,7 @@ def test_group_chain(runner):
         pass
 
     result = runner.invoke(good_cli)
-    assert result.exit_code is 0
+    assert result.exit_code == 0
     assert sub_cli.name in result.output
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
         assert ep.name in result.output
@@ -121,13 +121,13 @@ def test_group_chain(runner):
         pass
 
     result = runner.invoke(good_cli, ['sub-cli-plugins'])
-    assert result.exit_code is 0
+    assert result.exit_code == 0
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
         assert ep.name in result.output
 
     # Execute one of the sub-group's commands
     result = runner.invoke(good_cli, ['sub-cli-plugins', 'cmd1', 'something'])
-    assert result.exit_code is 0
+    assert result.exit_code == 0
     assert result.output.strip() == 'passed'
 
 
