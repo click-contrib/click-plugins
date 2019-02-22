@@ -138,3 +138,25 @@ def test_exception():
         @click.command()
         def cli():
             """Whatever"""
+
+
+def test_broken_register_and_run_with_help(runner):
+    result = runner.invoke(broken_cli)
+    assert result.exit_code == 0
+    assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
+
+    for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
+        cmd_result = runner.invoke(broken_cli, [ep.name, "--help"])
+        assert cmd_result.exit_code != 0
+        assert 'Traceback' in cmd_result.output
+
+
+def test_broken_register_and_run_with_args(runner):
+    result = runner.invoke(broken_cli)
+    assert result.exit_code == 0
+    assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
+
+    for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
+        cmd_result = runner.invoke(broken_cli, [ep.name, "-a", "b"])
+        assert cmd_result.exit_code != 0
+        assert 'Traceback' in cmd_result.output
