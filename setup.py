@@ -58,7 +58,7 @@ setup(
         ],
     },
     include_package_data=True,
-    install_requires=['click>=3.0'],
+    install_requires=['click>=4.0'],
     keywords='click plugin setuptools entry-point',
     license="New BSD",
     long_description=long_desc,
