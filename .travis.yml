@@ -20,7 +20,7 @@ env:
 
 install:
   - pip install coveralls
-  - pip install -e .\[dev\]
+  - pip install -e ".[dev]"
   - pip install "click==${CLICK_VERSION}"
 
 script:
