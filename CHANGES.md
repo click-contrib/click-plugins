@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.0.5 - 2019-04-03
-------------------
+1.1 - 2019-04-04
+----------------
 
 - Fix an issue where a broken command's traceback would not be emitted - https://github.com/click-contrib/click-plugins/issues/25
 - Bump required click version to `click>=4` - https://github.com/click-contrib/click-plugins/pull/28
