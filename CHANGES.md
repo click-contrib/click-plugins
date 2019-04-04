@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.1 - 2019-04-04
+------------------
+
+- Fixed a version mismatch in `click_plugins/__init__.py`  See `1.1`.
+
 1.1 - 2019-04-04
 ----------------
 
