@@ -1,17 +1,15 @@
-language: python
-
 sudo: false
-cache:
-  directories:
-    - ~/.cache/pip
+dist: xenial
+
+language: python
+cache: pip
 
 python:
   - 2.7
   - 3.4
   - 3.5
   - 3.6
-  - pypy
-  - pypy3
+  - 3.7
 
 install:
   - pip install coveralls
