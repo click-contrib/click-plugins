@@ -2,10 +2,7 @@ sudo: false
 dist: xenial
 
 language: python
-
-cache:
-  directories:
-    - ~/.cache/pip
+cache: pip
 
 python:
   - 2.7
