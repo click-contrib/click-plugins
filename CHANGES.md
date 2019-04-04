@@ -6,6 +6,7 @@ Changelog
 
 - Fix an issue where a broken command's traceback would not be emitted - https://github.com/click-contrib/click-plugins/issues/25
 - Bump required click version to `click>=4` - https://github.com/click-contrib/click-plugins/pull/28
+- Runs Travis tests for the latest release of click versions 4 -> 7 - https://github.com/click-contrib/click-plugins/pull/28
 
 1.0.4 - 2018-09-15
 ------------------
