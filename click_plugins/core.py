@@ -34,7 +34,7 @@ def with_plugins(plugins):
 
         for entry_point in plugins or ():
             try:
-                group.add_command(entry_point.load())
+                group.add_command(entry_point.resolve())
             except Exception:
                 # Catch this so a busted plugin doesn't take down the CLI.
                 # Handled by registering a dummy command that does nothing
