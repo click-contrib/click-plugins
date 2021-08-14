@@ -38,6 +38,24 @@ registers CLI plugins from ``core_package.cli_plugins``.
 
 .. code-block:: python
 
+    import click
+    from click_plugins import with_plugins
+
+
+    @with_plugins('core_package.cli_plugins')
+    @click.group()
+    def cli():
+        """Commandline interface for yourpackage."""
+
+    @cli.command()
+    def subcommand():
+        """Subcommand that does something."""
+
+Alternatively, an iterable producing one ``pkg_resources.EntryPoint()`` per
+interation (like ``pkg_resources.iter_entry_points()``) can be used.
+
+.. code-block:: python
+
     from pkg_resources import iter_entry_points
 
     import click

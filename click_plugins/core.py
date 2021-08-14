@@ -8,6 +8,7 @@ import click
 import os
 import sys
 import traceback
+from pkg_resources import iter_entry_points
 
 
 def with_plugins(plugins):
@@ -18,8 +19,9 @@ def with_plugins(plugins):
 
     Parameters
     ----------
-    plugins : iter
-        An iterable producing one `pkg_resources.EntryPoint()` per iteration.
+    plugins : str | iter
+        An entry point group name.
+        Alternatively an iterable producing one `pkg_resources.EntryPoint()` per iteration.
     attrs : **kwargs, optional
         Additional keyword arguments for instantiating `click.Group()`.
 
@@ -32,7 +34,11 @@ def with_plugins(plugins):
         if not isinstance(group, click.Group):
             raise TypeError("Plugins can only be attached to an instance of click.Group()")
 
-        for entry_point in plugins or ():
+        entry_points = plugins
+        if type(plugins) is str:
+            entry_points = iter_entry_points(plugins)
+
+        for entry_point in entry_points or ():
             try:
                 group.add_command(entry_point.load())
             except Exception:
