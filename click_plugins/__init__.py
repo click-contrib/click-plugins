@@ -3,13 +3,11 @@ An extension module for click to enable registering CLI commands via setuptools
 entry-points.
 
 
-    from pkg_resources import iter_entry_points
-
     import click
     from click_plugins import with_plugins
 
 
-    @with_plugins(iter_entry_points('entry_point.name'))
+    @with_plugins('entry_point.name')
     @click.group()
     def cli():
         '''Commandline interface for something.'''

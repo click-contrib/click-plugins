@@ -67,6 +67,13 @@ def broken_cli():
     """Broken CLI group."""
     pass
 
+# Passing the group name instead of the entry points iterator
+@with_plugins('_test_click_plugins.test_plugins')
+@click.group()
+def good_cli_by_name():
+    """Good CLI group referenced by name."""
+    pass
+
 
 def test_registered():
     # Make sure the plugins are properly registered.  If this test fails it
@@ -75,13 +82,14 @@ def test_registered():
     assert len([ep for ep in iter_entry_points('_test_click_plugins.broken_plugins')]) > 1
 
 
-def test_register_and_run(runner):
+@pytest.mark.parametrize("cli", [good_cli, good_cli_by_name])
+def test_register_and_run(runner, cli):
 
-    result = runner.invoke(good_cli)
+    result = runner.invoke(cli)
     assert result.exit_code == 0
 
     for ep in iter_entry_points('_test_click_plugins.test_plugins'):
-        cmd_result = runner.invoke(good_cli, [ep.name, 'something'])
+        cmd_result = runner.invoke(cli, [ep.name, 'something'])
         assert cmd_result.exit_code == 0
         assert cmd_result.output.strip() == 'passed'
 
