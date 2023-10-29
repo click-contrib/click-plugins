@@ -113,17 +113,12 @@ class BrokenCommand(click.Command):
 
         util_name = os.path.basename(sys.argv and sys.argv[0] or __file__)
 
-        if os.environ.get('CLICK_PLUGINS_HONESTLY'):  # pragma no cover
-            icon = u'\U0001F4A9'
-        else:
-            icon = u'\u2020'
-
         self.help = (
             "\nWarning: entry point could not be loaded. Contact "
             "its author for help.\n\n\b\n"
             + traceback.format_exc())
         self.short_help = (
-            icon + " Warning: could not load plugin. See `%s %s --help`."
+            "\u2020 Warning: could not load plugin. See `%s %s --help`."
             % (util_name, self.name))
 
     def invoke(self, ctx):

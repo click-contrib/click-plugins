@@ -90,7 +90,7 @@ def test_broken_register_and_run(runner):
 
     result = runner.invoke(broken_cli)
     assert result.exit_code == 0
-    assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
+    assert '\u2020' in result.output
 
     for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
         cmd_result = runner.invoke(broken_cli, [ep.name])
@@ -143,7 +143,7 @@ def test_exception():
 def test_broken_register_and_run_with_help(runner):
     result = runner.invoke(broken_cli)
     assert result.exit_code == 0
-    assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
+    assert '\u2020' in result.output
 
     for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
         cmd_result = runner.invoke(broken_cli, [ep.name, "--help"])
@@ -154,7 +154,7 @@ def test_broken_register_and_run_with_help(runner):
 def test_broken_register_and_run_with_args(runner):
     result = runner.invoke(broken_cli)
     assert result.exit_code == 0
-    assert u'\U0001F4A9' in result.output or u'\u2020' in result.output
+    assert '\u2020' in result.output
 
     for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
         cmd_result = runner.invoke(broken_cli, [ep.name, "-a", "b"])
