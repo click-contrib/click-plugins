@@ -83,11 +83,11 @@ def with_plugins(plugins):
         for entry_point in plugins or ():
             try:
                 group.add_command(entry_point.load())
-            except Exception:
+            except Exception as e:
                 # Catch this so a busted plugin doesn't take down the CLI.
                 # Handled by registering a dummy command that does nothing
                 # other than explain the error.
-                group.add_command(BrokenCommand(entry_point.name))
+                group.add_command(BrokenCommand(entry_point.name, e))
 
         return group
 
@@ -102,21 +102,33 @@ class BrokenCommand(click.Command):
     for debugging and exits with an error code.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, exception):
 
         """
         :param str name:
             Entry point name.
+        :param Exception exception:
+            Raised when attempting to load the entry point associated with
+            this instance.
         """
 
         click.Command.__init__(self, name)
 
         util_name = os.path.basename(sys.argv and sys.argv[0] or __file__)
 
+        # There are several ways to get a traceback from an exception, but
+        # 'TracebackException()' seems to be the most portable across actively
+        # supported versions of Python.
+        tbe = traceback.TracebackException.from_exception(exception)
+
+        # A message for '$ cli command --help'.
         self.help = (
-            "\nWarning: entry point could not be loaded. Contact "
-            "its author for help.\n\n\b\n"
-            + traceback.format_exc())
+            "{ls}ERROR: entrypoint could not be loaded. Contact its author"
+            " for help.{ls}{ls}{tb}").format(
+            ls=os.linesep,
+            tb=''.join(tbe.format())
+        )
+
         self.short_help = (
             "\u2020 Warning: could not load plugin. See `%s %s --help`."
             % (util_name, self.name))
