@@ -21,7 +21,7 @@ version = None
 author = None
 email = None
 source = None
-with open(os.path.join('click_plugins', '__init__.py')) as f:
+with open('click_plugins.py') as f:
     for line in f:
         if line.strip().startswith('__version__'):
             version = line.split('=')[1].strip().replace('"', '').replace("'", '')
@@ -61,7 +61,7 @@ setup(
     keywords='click plugin setuptools entry-point',
     license="New BSD",
     long_description=long_desc,
-    packages=find_packages(exclude=['tests.*', 'tests']),
+    py_modules=['click_plugins'],
     url=source,
     version=version,
     zip_safe=True
