@@ -174,7 +174,7 @@ Tests can be executed with:
 
 .. code-block:: console
 
-    $ (venv) python3 -m pytest
+    $ (venv) python3 -m unittest click_plugins_tests.py
 
 or a full test across all supported versions of ``click`` and Python with:
 
