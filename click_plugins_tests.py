@@ -3,16 +3,34 @@ from pkg_resources import iter_entry_points
 from pkg_resources import working_set
 
 import click
-from click_plugins import with_plugins
+from click.testing import CliRunner
 import pytest
 
+from click_plugins import with_plugins
 
-# Create a few CLI commands for testing
+
+###############################################################################
+# 'pytest' fixtures
+
+
+@pytest.fixture(scope='function')
+def runner(request):
+    return CliRunner()
+
+
+###############################################################################
+# Register CLI
+
+# A collection of commands and subcommands in various states. Register as
+# entry points for loading later.
+
+
 @click.command()
 @click.argument('arg')
 def cmd1(arg):
     """Test command 1"""
     click.echo('passed')
+
 
 @click.command()
 @click.argument('arg')
@@ -24,32 +42,40 @@ def cmd2(arg):
 # Manually register plugins in an entry point and put broken plugins in a
 # different entry point.
 
-# The `DistStub()` class gets around an exception that is raised when
-# `entry_point.load()` is called.  By default `load()` has `requires=True`
-# which calls `dist.requires()` and the `click.group()` decorator
-# doesn't allow us to change this.  Because we are manually registering these
-# plugins the `dist` attribute is `None` so we can just create a stub that
-# always returns an empty list since we don't have any requirements.  A full
-# `pkg_resources.Distribution()` instance is not needed because there isn't
-# a package installed anywhere.
 class DistStub(object):
+
+    """Shim for testing.
+
+    This class gets around an exception that is raised when loading an entry
+    point. By default, ``entry_point.load()`` sets ``requires=True``, which in
+    turn calls ``dist.requires()``. The ``click.group()`` decorator does not
+    allow us to change this parameter. Because we are manually registering
+    these plugins the ``dist`` attribute is ``None`` so we can just create a
+    stub that always returns an empty list since we don't have any
+    requirements.  A full ``pkg_resources.Distribution()`` instance is not
+    needed because these entry points are not associated with a package.
+    """
+
     def requires(self, *args):
         return []
+
 
 working_set.by_key['click']._ep_map = {
     '_test_click_plugins.test_plugins': {
         'cmd1': EntryPoint.parse(
-            'cmd1=tests.test_plugins:cmd1', dist=DistStub()),
+            # !! Points to a function in this file !!
+            'cmd1=click_plugins_tests:cmd1', dist=DistStub()),
         'cmd2': EntryPoint.parse(
-            'cmd2=tests.test_plugins:cmd2', dist=DistStub())
+            # !! Points to a function in this file !!
+            'cmd2=click_plugins_tests:cmd2', dist=DistStub())
     },
     '_test_click_plugins.broken_plugins': {
         'before': EntryPoint.parse(
-            'before=tests.broken_plugins:before', dist=DistStub()),
+            'before=broken_plugins:before', dist=DistStub()),
         'after': EntryPoint.parse(
-            'after=tests.broken_plugins:after', dist=DistStub()),
+            'after=broken_plugins:after', dist=DistStub()),
         'do_not_exist': EntryPoint.parse(
-            'do_not_exist=tests.broken_plugins:do_not_exist', dist=DistStub())
+            'do_not_exist=broken_plugins:do_not_exist', dist=DistStub())
     }
 }
 
@@ -61,11 +87,16 @@ def good_cli():
     """Good CLI group."""
     pass
 
+
 @with_plugins(iter_entry_points('_test_click_plugins.broken_plugins'))
 @click.group()
 def broken_cli():
     """Broken CLI group."""
     pass
+
+
+###############################################################################
+# Tests
 
 
 def test_registered():
