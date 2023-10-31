@@ -114,24 +114,33 @@ class BrokenCommand(click.Command):
 
         click.Command.__init__(self, name)
 
-        util_name = os.path.basename(sys.argv and sys.argv[0] or __file__)
-
         # There are several ways to get a traceback from an exception, but
         # 'TracebackException()' seems to be the most portable across actively
         # supported versions of Python.
         tbe = traceback.TracebackException.from_exception(exception)
 
-        # A message for '$ cli command --help'.
+        # A message for '$ cli command --help'. Contains full traceback and a
+        # helpful note. The intention is to nudge users to figure out which
+        # project should get a bug report since users are likely to report the
+        # issue to the developers of the CLI utility they are directly
+        # interacting with. These are not necessarily the right developers.
         self.help = (
-            "{ls}ERROR: entrypoint could not be loaded. Contact its author"
-            " for help.{ls}{ls}{tb}").format(
+            "{ls}ERROR: entry point '{name}' could not be loaded. Contact its"
+            " author for help.{ls}{ls}{tb}").format(
+            name=name,
             ls=os.linesep,
             tb=''.join(tbe.format())
         )
 
+        # Replace the broken command's summary with a warning about how it
+        # was not loaded successfully. The idea is that '$ cli --help' should
+        # include a clear indicator that a subcommand is not functional, and
+        # a little hint for what to do about it. U+2020 is a "dagger", whose
+        # modern use typically indicates a footnote.
         self.short_help = (
-            "\u2020 Warning: could not load plugin. See `%s %s --help`."
-            % (util_name, self.name))
+            f"\u2020 Warning: could not load plugin. Invoke command with"
+            f" '--help' for traceback."
+        )
 
     def invoke(self, ctx):
 
