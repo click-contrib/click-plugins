@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
 
-def with_plugins(plugins):
+def with_plugins(entry_points):
 
     """Decorator for loading plugins.
 
@@ -70,7 +70,7 @@ def with_plugins(plugins):
     >>> def subcommand(arg):
     ...     '''A subcommand for something else'''
 
-    :param iterable plugins:
+    :param iterable entry_points:
         Of ``pkg_resources.EntryPoint()`` objects.
 
     :rtype click.Group:
@@ -78,16 +78,21 @@ def with_plugins(plugins):
 
     def decorator(group):
         if not isinstance(group, click.Group):
-            raise TypeError("Plugins can only be attached to an instance of click.Group()")
+            raise TypeError(
+                f"plugins can only be attached to an instance of"
+                f" 'click.Group()' not: {repr(group)}")
 
-        for entry_point in plugins or ():
+        for ep in entry_points:
+
             try:
-                group.add_command(entry_point.load())
+                group.add_command(ep.load())
+
+            # Catch all exceptions (technically not 'BaseException') and
+            # instead register a special 'BrokenCommand()'. Otherwise, a single
+            # plugin that fails to load and/or register will make the CLI
+            # inoperable. 'BrokenCommand()' explains the situation to users.
             except Exception as e:
-                # Catch this so a busted plugin doesn't take down the CLI.
-                # Handled by registering a dummy command that does nothing
-                # other than explain the error.
-                group.add_command(BrokenCommand(entry_point, e))
+                group.add_command(BrokenCommand(ep, e))
 
         return group
 
@@ -112,7 +117,7 @@ class BrokenCommand(click.Command):
             this instance.
         """
 
-        click.Command.__init__(self, entry_point.name)
+        super().__init__(entry_point.name)
 
         # There are several ways to get a traceback from an exception, but
         # 'TracebackException()' seems to be the most portable across actively
