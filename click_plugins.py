@@ -156,7 +156,7 @@ class BrokenCommand(click.Command):
             Active context.
         """
 
-        click.echo(self.help, color=ctx.color)
+        click.echo(self.help, color=ctx.color, err=True)
         ctx.exit(1)
 
     def parse_args(self, ctx, args):
