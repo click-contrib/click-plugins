@@ -147,7 +147,12 @@ def test_broken_register_and_run_with_help(runner):
 
     for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
         cmd_result = runner.invoke(broken_cli, [ep.name, "--help"])
+        msg = (
+            f"ERROR: entry point '{ep.module_name}:{ep.name}' could not be"
+            f" loaded."
+        )
         assert cmd_result.exit_code != 0
+        assert cmd_result.output.strip().startswith(msg)
         assert 'Traceback' in cmd_result.output
 
 

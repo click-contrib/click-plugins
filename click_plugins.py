@@ -87,7 +87,7 @@ def with_plugins(plugins):
                 # Catch this so a busted plugin doesn't take down the CLI.
                 # Handled by registering a dummy command that does nothing
                 # other than explain the error.
-                group.add_command(BrokenCommand(entry_point.name, e))
+                group.add_command(BrokenCommand(entry_point, e))
 
         return group
 
@@ -102,17 +102,17 @@ class BrokenCommand(click.Command):
     for debugging and exits with an error code.
     """
 
-    def __init__(self, name, exception):
+    def __init__(self, entry_point, exception):
 
         """
-        :param str name:
-            Entry point name.
+        :param pkg_resources.EntryPoint entry_point:
+            Entry point that failed to load.
         :param Exception exception:
             Raised when attempting to load the entry point associated with
             this instance.
         """
 
-        click.Command.__init__(self, name)
+        click.Command.__init__(self, entry_point.name)
 
         # There are several ways to get a traceback from an exception, but
         # 'TracebackException()' seems to be the most portable across actively
@@ -125,9 +125,10 @@ class BrokenCommand(click.Command):
         # issue to the developers of the CLI utility they are directly
         # interacting with. These are not necessarily the right developers.
         self.help = (
-            "{ls}ERROR: entry point '{name}' could not be loaded. Contact its"
-            " author for help.{ls}{ls}{tb}").format(
-            name=name,
+            "{ls}ERROR: entry point '{module}:{name}' could not be loaded."
+            " Contact its author for help.{ls}{ls}{tb}").format(
+            module=entry_point.module_name,
+            name=entry_point.name,
             ls=os.linesep,
             tb=''.join(tbe.format())
         )
