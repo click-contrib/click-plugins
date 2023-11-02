@@ -1,7 +1,4 @@
-"""Core components for ``click_plugins``.
-
-See ``with_plugins()``.
-"""
+"""See ``with_plugins()``."""
 
 
 import os
@@ -56,11 +53,12 @@ def with_plugins(entry_points):
     point producing an exception during loading will be wrapped in a
     ``BrokenCommand()``.
 
-    >>> from pkg_resources import iter_entry_points
+    >>> import importlib.metadata
     >>> import click
     >>> from click_plugins import with_plugins
     >>>
-    >>> @with_plugins(iter_entry_points('entry_point.name'))
+    >>> @with_plugins(
+    ...     importlib.metadata.entry_points(group='entry_point.name'))
     >>> @click.group()
     >>> def cli():
     ...     '''Commandline interface for something.'''
@@ -71,7 +69,7 @@ def with_plugins(entry_points):
     ...     '''A subcommand for something else'''
 
     :param iterable entry_points:
-        Of ``pkg_resources.EntryPoint()`` objects.
+        Of ``importlib.metadata.EntryPoint()`` objects.
 
     :rtype click.Group:
     """
@@ -110,7 +108,7 @@ class BrokenCommand(click.Command):
     def __init__(self, entry_point, exception):
 
         """
-        :param pkg_resources.EntryPoint entry_point:
+        :param importlib.metadata.EntryPoint entry_point:
             Entry point that failed to load.
         :param Exception exception:
             Raised when attempting to load the entry point associated with
@@ -132,7 +130,7 @@ class BrokenCommand(click.Command):
         self.help = (
             "{ls}ERROR: entry point '{module}:{name}' could not be loaded."
             " Contact its author for help.{ls}{ls}{tb}").format(
-            module=entry_point.module_name,
+            module=_module_name(entry_point),
             name=entry_point.name,
             ls=os.linesep,
             tb=''.join(tbe.format())
@@ -176,3 +174,28 @@ class BrokenCommand(click.Command):
         # and provide the user with a bit of debugging information.
 
         return args
+
+
+def _module_name(ep):
+
+    """Module name for a given entry point.
+
+    Parameters
+    ----------
+    ep : importlib.metadata.EntryPoint
+        Determine parent module for this entry point.
+
+    Returns
+    -------
+    str
+    """
+
+    if sys.version_info <= (3, 9):
+        # From 'importlib.metadata.EntryPoint.module'.
+        match = ep.pattern.match(ep.value)
+        module = match.group('module')
+
+    else:
+        module = ep.module
+
+    return module

@@ -118,23 +118,16 @@ Executing ``printit bold`` reveals the full traceback:
 
     $ printit bold
 
-    Warning: entry point could not be loaded. Contact its author for help.
+    ERROR: entry point 'printit_bold.core:bold' could not be loaded. Contact its author for help.
 
     Traceback (most recent call last):
-      File "/Users/wursterk/github/click/venv/lib/python3.4/site-packages/pkg_resources/__init__.py", line 2353, in resolve
-        return functools.reduce(getattr, self.attrs, module)
-    AttributeError: 'module' object has no attribute 'bolddddddddddd'
-
-    During handling of the above exception, another exception occurred:
-
-    Traceback (most recent call last):
-      File "/Users/wursterk/github/click/click/decorators.py", line 145, in decorator
-        obj.add_command(entry_point.load())
-      File "/Users/wursterk/github/click/venv/lib/python3.4/site-packages/pkg_resources/__init__.py", line 2345, in load
-        return self.resolve()
-      File "/Users/wursterk/github/click/venv/lib/python3.4/site-packages/pkg_resources/__init__.py", line 2355, in resolve
-        raise ImportError(str(exc))
-    ImportError: 'module' object has no attribute 'bolddddddddddd'
+      File "/Users/user/projects/code/click-plugins/click_plugins.py", line 85, in decorator
+        group.add_command(ep.load())
+                          ^^^^^^^^^
+      File "/opt/homebrew/Cellar/python@3.11/3.11.6/Frameworks/Python.framework/Versions/3.11/lib/python3.11/importlib/metadata/__init__.py", line 204, in load
+        return functools.reduce(getattr, attrs, module)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    AttributeError: module 'printit_bold.core' has no attribute 'bolddddddddddd'
 
 In this case the error is in the broken plugin's ``setup.py``.  Note the typo
 in the ``entry_points`` section.

@@ -3,13 +3,14 @@ Commandline interface for PrintIt
 """
 
 
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 
 import click
+import click_plugins
 from click_plugins import with_plugins
 
 
-@with_plugins(iter_entry_points('printit.plugins'))
+@with_plugins(entry_points(group='printit.plugins'))
 @click.group()
 def cli():
 

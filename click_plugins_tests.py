@@ -1,13 +1,13 @@
+import configparser
+import importlib.metadata
+from io import StringIO
 import os
 import unittest
 
 import click
 from click.testing import CliRunner
-from pkg_resources import EntryPoint
-from pkg_resources import iter_entry_points
-from pkg_resources import working_set
 
-from click_plugins import with_plugins
+from click_plugins import _module_name, with_plugins
 
 
 ###############################################################################
@@ -34,31 +34,83 @@ def cmd2(arg):
 # Shim Entry Point Machinery
 
 
-class DistStub(object):
+class VirtualDistribution(importlib.metadata.Distribution):
 
-    """Shim for testing.
+    """Representation of a package.
 
-    This class gets around an exception that is raised when loading an entry
-    point. By default, ``entry_point.load()`` sets ``requires=True``, which in
-    turn calls ``dist.requires()``. The ``click.group()`` decorator does not
-    allow us to change this parameter. Because we are manually registering
-    these plugins the ``dist`` attribute is ``None`` so we can just create a
-    stub that always returns an empty list since we don't have any
-    requirements.  A full ``pkg_resources.Distribution()`` instance is not
-    needed because these entry points are not associated with a package.
+    Implements just enough methods to be used in testing. The tests need
+
+    Represents an installed package. Implements just enough methods to be used
+    in testing. The tests require ``importlib.metadata.EntryPoint()`` objects,
+    and this class provides them. Otherwise, an installed package with entry
+    points would be required for testing.
     """
 
-    def requires(self, *args):
-        return []
+    def __init__(self, valid, invalid):
+
+        """Must set at least one of `valid` or `invalid`.
+
+        Parameters
+        ----------
+        valid : bool
+            Include functional plugins.
+        invalid : bool
+            Include broken plugins.
+        """
+
+        if not valid and not invalid:
+            raise RuntimeError(
+                f'would not load entry points: {valid=} {invalid=}'
+            )
+
+        self.valid = valid
+        self.invalid = invalid
+
+    @property
+    def name(self):
+        return '<virtual distribution for testing>'
+
+    def locate_file(self, path):
+        # Base class requires an implementation, but it does not need to
+        # be functional.
+        raise NotImplementedError
+
+    def read_text(self, filename):
+
+        # Only supports reading 'entry_points.txt'.
+
+        if filename != 'entry_points.txt':
+            raise RuntimeError(f'unsupported: {filename=}')
+
+        cfg = configparser.ConfigParser()
+
+        # Add valid plugins. These are expected to work properly.
+        if self.valid:
+            section = 'click_plugins_tests.valid'
+            cfg.add_section(section)
+            cfg.set(section, 'cmd1', 'click_plugins_tests:cmd1')
+            cfg.set(section, 'cmd2', 'click_plugins_tests:cmd2')
+
+        # Add invalid plugins. Broken in a variety of ways.
+        if self.invalid:
+            section = 'click_plugins_tests.invalid'
+            cfg.add_section(section)
+            cfg.set(
+                section, 'no_exist', 'click_plugins_tests:__no__exist__')
+
+        with StringIO() as f:
+            cfg.write(f)
+            f.seek(0)
+            text = f.read()
+
+        return text.strip()
 
 
 ###############################################################################
 # Tests
 
 
-class TestCase(unittest.TestCase):
-
-    """Includes setup/teardown for registering plugins."""
+class Tests(unittest.TestCase):
 
     def setUp(self):
 
@@ -67,62 +119,25 @@ class TestCase(unittest.TestCase):
         # 'click' test runner.
         self.runner = CliRunner()
 
-        # Register entry points by manually monkey patching an in-memory
-        # object. Somewhat surprisingly, this has worked for a very long time.
-        # This 'by_key[...]' bit must reference an external dependency, and is
-        # also magic. Effectively this attaches an entrypoint to an existing
-        # package. The package must not be part of the stdlib, and probably.
-        # 'setuptools' will never register an entrypoint. If it does the
-        # 'RuntimeError()' below will be triggered.
-        self.working_set_key = 'setuptools'
-        dist_info = working_set.by_key[self.working_set_key]
-        if hasattr(dist_info, '_ep_map'):
-            raise RuntimeError(
-                f"'{self.working_set_key}' seems to have registered an entry"
-                f" point - refusing to patch"
-            )
+        valid_dist = VirtualDistribution(valid=True, invalid=False)
+        invalid_dist = VirtualDistribution(valid=False, invalid=True)
 
-        dist_info._ep_map = {
-            '_test_click_plugins.test_plugins': {
-                'cmd1': EntryPoint.parse(
-                    # !! Points to a function in this file !!
-                    'cmd1=click_plugins_tests:cmd1', dist=DistStub()),
-                'cmd2': EntryPoint.parse(
-                    # !! Points to a function in this file !!
-                    'cmd2=click_plugins_tests:cmd2', dist=DistStub())
-            },
-            '_test_click_plugins.broken_plugins': {
-                'before': EntryPoint.parse(
-                    'before=broken_plugins:before', dist=DistStub()),
-                'after': EntryPoint.parse(
-                    'after=broken_plugins:after', dist=DistStub()),
-                'do_not_exist': EntryPoint.parse(
-                    'do_not_exist=broken_plugins:do_not_exist',
-                    dist=DistStub())
-            }
-        }
+        self.valid_entry_points = valid_dist.entry_points
+        self.invalid_entry_points = invalid_dist.entry_points
 
         # CLI group with valid plugins attached.
-        @with_plugins(iter_entry_points('_test_click_plugins.test_plugins'))
+        @with_plugins(self.valid_entry_points)
         @click.group()
         def good_cli():
             """Good CLI group."""
         self.good_cli = good_cli
 
         # CLi group with broken plugins attached.
-        @with_plugins(iter_entry_points('_test_click_plugins.broken_plugins'))
+        @with_plugins(self.invalid_entry_points)
         @click.group()
         def broken_cli():
             """Broken CLI group."""
         self.broken_cli = broken_cli
-
-    def tearDown(self):
-        # This seems to be fine based on the 'pkg_resources' source code.
-        # Sketchy, but some form of test isolation is necessary.
-        delattr(working_set.by_key[self.working_set_key], '_ep_map')
-
-
-class Tests(TestCase):
 
     def test_registered(self):
 
@@ -132,14 +147,8 @@ class Tests(TestCase):
         correct.
         """
 
-        module_names = (
-            '_test_click_plugins.test_plugins',
-            '_test_click_plugins.broken_plugins'
-        )
-
-        for modname in module_names:
-            entry_points = list(iter_entry_points(modname))
-            self.assertGreater(len(entry_points), 1)
+        for eps in (self.valid_entry_points, self.invalid_entry_points):
+            self.assertGreaterEqual(len(eps), 1)
 
     def test_load_and_run(self):
 
@@ -156,7 +165,7 @@ class Tests(TestCase):
             self.assertNotIn('\u2020 Warning:', parent_result.output)
 
         # Ensure each plugin executes without error.
-        for ep in iter_entry_points('_test_click_plugins.test_plugins'):
+        for ep in self.valid_entry_points:
             result = self.runner.invoke(self.good_cli, [ep.name, 'something'])
             self.assertEqual(0, result.exit_code)
             self.assertEqual(f'passed{os.linesep}', result.output)
@@ -178,12 +187,12 @@ class Tests(TestCase):
         # traceback when executed with '--help'. Perform this check with and
         # without additional arguments.
         for args in ([], ['-a', 'b']):
-            for ep in iter_entry_points('_test_click_plugins.broken_plugins'):
+            for ep in self.invalid_entry_points:
                 result = self.runner.invoke(self.broken_cli, [ep.name] + args)
                 self.assertEqual(1, result.exit_code)
                 self.assertIn('Traceback', result.output)
                 msg = (
-                    f"ERROR: entry point '{ep.module_name}:{ep.name}' could"
+                    f"ERROR: entry point '{_module_name(ep)}:{ep.name}' could"
                     f" not be loaded."
                 )
                 self.assertIn(msg, result.output)
@@ -201,10 +210,10 @@ class Tests(TestCase):
         result = self.runner.invoke(self.good_cli)
         self.assertEqual(0, result.exit_code)
         self.assertIn(subgroup.name, result.output)
-        for ep in iter_entry_points('_test_click_plugins.test_plugins'):
+        for ep in self.valid_entry_points:
             self.assertIn(ep.name, result.output)
 
-        @with_plugins(iter_entry_points('_test_click_plugins.test_plugins'))
+        @with_plugins(self.valid_entry_points)
         @self.good_cli.group(name='subgroup-with-plugins')
         def subgroup_with_plugins():
             """Subgroup with plugins."""
@@ -212,7 +221,7 @@ class Tests(TestCase):
         # Same as above, but the subgroup also has plugins.
         result = self.runner.invoke(self.good_cli, ['subgroup-with-plugins'])
         self.assertEqual(0, result.exit_code)
-        for ep in iter_entry_points('_test_click_plugins.test_plugins'):
+        for ep in self.valid_entry_points:
             self.assertIn(ep.name, result.output)
 
         # Execute one of the subgroup's commands

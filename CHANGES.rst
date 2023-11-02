@@ -8,6 +8,8 @@ Changelog
 Final release. Repository now serves as a reference implementation, and
 contains a file that users may vendor in order to use ``click-plugins``.
 
+* Migrate from the deprecated ``pkg_resources.iter_entry_points()`` to
+  ``importlib.metadata.entry_points()``.
 * Convert ``click_plugins/`` to a single ``click_plugins.py`` file. Users may
   copy this file into their project to use ``click-plugins``.
 * Drop Travis-CI and optionally use `Tox <https://tox.wiki>`_ for a full test

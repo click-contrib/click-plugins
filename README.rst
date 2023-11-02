@@ -32,13 +32,13 @@ registers CLI plugins from ``core_package.cli_plugins``.
 
 .. code-block:: python
 
-    from pkg_resources import iter_entry_points
+    from importlib.metadata import entry_points
 
     import click
     from click_plugins import with_plugins
 
 
-    @with_plugins(iter_entry_points('core_package.cli_plugins'))
+    @with_plugins(entry_points(group='core_package.cli_plugins'))
     @click.group()
     def cli():
         """Commandline interface for yourpackage."""
