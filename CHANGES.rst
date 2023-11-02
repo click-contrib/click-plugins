@@ -8,6 +8,9 @@ Changelog
 Final release. Repository now serves as a reference implementation, and
 contains a file that users may vendor in order to use ``click-plugins``.
 
+* Drop Travis-CI and optionally use `Tox <https://tox.wiki>`_ for a full test
+  matrix. This project is winding down and no longer needs a CI system.
+
 1.1.1.2 - 2025-06-24
 ====================
 

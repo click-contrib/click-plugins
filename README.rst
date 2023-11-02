@@ -2,11 +2,7 @@
 click-plugins
 =============
 
-This PyPI package is no longer actively maintained, but the underlying
-library can be vendored. See `homepage <https://github.com/click-contrib/click-plugins>`_
-for more information.
-
-An extension module for `click <https://github.com/pallets/click>`_ to register
+An extension module for `click <https://github.com/mitsuhiko/click>`_ to register
 external CLI commands via setuptools entry-points.
 
 
@@ -173,6 +169,19 @@ A Python virtual environment is recommended for development:
     $ source venv/bin/activate
     $ (venv) pip install -e '.[dev]'
     $ (venv) pytest tests --cov click_plugins --cov-report term-missing
+
+Tests can be executed with:
+
+.. code-block:: console
+
+    $ (venv) python3 -m pytest
+
+or a full test across all supported versions of ``click`` and Python with:
+
+.. code-block:: console
+
+    $ (venv) pip install 'tox>=4'
+    $ (venv) tox
 
 
 Changelog

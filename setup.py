@@ -54,7 +54,6 @@ setup(
             'pytest>=3.6',
             'pytest-cov',
             'wheel',
-            'coveralls'
         ],
     },
     include_package_data=True,
