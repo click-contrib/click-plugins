@@ -158,12 +158,21 @@ From source:
 Developing
 ----------
 
+Check out the source code:
+
 .. code-block:: console
 
     $ git clone https://github.com/click-contrib/click-plugins.git
     $ cd click-plugins
-    $ pip install -e .\[dev\]
-    $ pytest tests --cov click_plugins --cov-report term-missing
+
+A Python virtual environment is recommended for development:
+
+.. code-block:: console
+
+    $ python3 -m venv venv
+    $ source venv/bin/activate
+    $ (venv) pip install -e '.[dev]'
+    $ (venv) pytest tests --cov click_plugins --cov-report term-missing
 
 
 Changelog
