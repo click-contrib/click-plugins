@@ -10,7 +10,7 @@ from unittest import mock
 import click
 from click.testing import CliRunner
 
-from click_plugins import _module_name, with_plugins
+from click_plugins import _module, with_plugins
 
 
 ###############################################################################
@@ -342,7 +342,7 @@ class Tests(unittest.TestCase):
                 self.assertEqual(1, result.exit_code)
                 self.assertIn('Traceback', result.output)
                 msg = (
-                    f"ERROR: entry point '{_module_name(ep)}:{ep.name}' could"
+                    f"ERROR: entry point '{_module(ep)}:{ep.name}' could"
                     f" not be loaded."
                 )
                 self.assertIn(msg, result.output)

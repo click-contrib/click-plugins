@@ -174,7 +174,7 @@ class BrokenCommand(click.Command):
         self.help = (
             "{ls}ERROR: entry point '{module}:{name}' could not be loaded."
             " Contact its author for help.{ls}{ls}{tb}").format(
-            module=_module_name(entry_point),
+            module=_module(entry_point),
             name=entry_point.name,
             ls=os.linesep,
             tb=''.join(tbe.format())
@@ -220,7 +220,7 @@ class BrokenCommand(click.Command):
         return args
 
 
-def _module_name(ep):
+def _module(ep):
 
     """Module name for a given entry point.
 
@@ -234,12 +234,12 @@ def _module_name(ep):
     str
     """
 
-    if sys.version_info <= (3, 9):
+    if sys.version_info >= (3, 10):
+        module = ep.module
+
+    else:
         # From 'importlib.metadata.EntryPoint.module'.
         match = ep.pattern.match(ep.value)
         module = match.group('module')
-
-    else:
-        module = ep.module
 
     return module
