@@ -1,6 +1,7 @@
 """See ``with_plugins()``."""
 
 
+import importlib.metadata
 import os
 import sys
 import traceback
@@ -47,32 +48,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 def with_plugins(entry_points):
 
-    """Decorator for loading plugins.
+    """Decorator for loading and attaching plugins to a ``click.Group()``.
 
-    Each entry point must point to a ``click.Command()`` object. An entry
-    point producing an exception during loading will be wrapped in a
-    ``BrokenCommand()``.
+    Plugins are loaded from an ``importlib.metadata.EntryPoint()``. Each entry
+    point must point to a ``click.Command()``. An entry point that fails to
+    load will be wrapped in a ``BrokenCommand()`` to allow the CLI user to
+    discover and potentially debug the problem.
 
-    >>> import importlib.metadata
+    >>> from importlib.metadata import entry_points
+    >>>
     >>> import click
     >>> from click_plugins import with_plugins
     >>>
-    >>> @with_plugins(
-    ...     importlib.metadata.entry_points(group='entry_point.name'))
+    >>> @with_plugins('group_name')
     >>> @click.group()
-    >>> def cli():
-    ...     '''Commandline interface for something.'''
+    >>> def group():
+    ...     '''Group'''
     >>>
-    >>> @cli.command()
-    >>> @click.argument('arg')
-    >>> def subcommand(arg):
-    ...     '''A subcommand for something else'''
+    >>> @with_plugins(entry_points('group_name'))
+    >>> @click.group()
+    >>> def group():
+    ...     '''Group'''
+    >>>
+    >>> @with_plugins(importlib.metadata.EntryPoint(...))
+    >>> @click.group()
+    >>> def group():
+    ...     '''Group'''
 
-    :param iterable entry_points:
-        Of ``importlib.metadata.EntryPoint()`` objects.
+    :param str or EntryPoint or sequence[EntryPoint] entry_points:
+        Entry point group name, a single ``importlib.metadata.EntryPoint()``,
+        or a sequence of ``EntryPoint()``s.
 
-    :rtype click.Group:
+    :rtype function:
     """
+
+    # Note that the explicit full path reference to:
+    #
+    #     importlib.metadata.entry_points()
+    #
+    # in this function allows the call to be mocked in the tests. Replacing
+    # with:
+    #
+    # from importlib.metadata import entry_points
+    #
+    # breaks this ability.
 
     def decorator(group):
         if not isinstance(group, click.Group):
@@ -80,7 +99,27 @@ def with_plugins(entry_points):
                 f"plugins can only be attached to an instance of"
                 f" 'click.Group()' not: {repr(group)}")
 
-        for ep in entry_points:
+        # Load 'EntryPoint()' objects.
+        if isinstance(entry_points, str):
+
+            # Older versions of Python do not support filtering.
+            if sys.version_info >= (3, 10):
+                all_entry_points = importlib.metadata.entry_points(
+                    group=entry_points)
+
+            else:
+                all_entry_points = importlib.metadata.entry_points()
+                all_entry_points = all_entry_points[entry_points]
+
+        # A single 'importlib.metadata.EntryPoint()'
+        elif isinstance(entry_points, importlib.metadata.EntryPoint):
+            all_entry_points = [entry_points]
+
+        # Sequence of 'EntryPoints()'.
+        else:
+            all_entry_points = entry_points
+
+        for ep in all_entry_points:
 
             try:
                 group.add_command(ep.load())

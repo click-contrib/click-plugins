@@ -1,8 +1,11 @@
+from collections import defaultdict
 import configparser
 import importlib.metadata
 from io import StringIO
 import os
+import sys
 import unittest
+from unittest import mock
 
 import click
 from click.testing import CliRunner
@@ -15,6 +18,11 @@ from click_plugins import _module_name, with_plugins
 
 # These commands are later registered as entry points, and then loaded. They
 # must exist in
+
+
+EP_NO_EXIST_KEY = 'no_exist'
+EP_NO_EXIST_VALUE = 'click_plugins_tests:__no__exist__'
+
 
 @click.command()
 @click.argument('arg')
@@ -46,7 +54,7 @@ class VirtualDistribution(importlib.metadata.Distribution):
     points would be required for testing.
     """
 
-    def __init__(self, valid, invalid):
+    def __init__(self, valid, invalid, extra_group):
 
         """Must set at least one of `valid` or `invalid`.
 
@@ -65,6 +73,7 @@ class VirtualDistribution(importlib.metadata.Distribution):
 
         self.valid = valid
         self.invalid = invalid
+        self.extra_group = extra_group
 
     @property
     def name(self):
@@ -95,8 +104,13 @@ class VirtualDistribution(importlib.metadata.Distribution):
         if self.invalid:
             section = 'click_plugins_tests.invalid'
             cfg.add_section(section)
+            cfg.set(section, EP_NO_EXIST_KEY, EP_NO_EXIST_VALUE)
+
+        if self.extra_group:
+            section = 'extra_entry_point_group'
+            cfg.add_section(section)
             cfg.set(
-                section, 'no_exist', 'click_plugins_tests:__no__exist__')
+                section, 'extra_entry_point_key', 'extra_entry_point_value')
 
         with StringIO() as f:
             cfg.write(f)
@@ -110,6 +124,137 @@ class VirtualDistribution(importlib.metadata.Distribution):
 # Tests
 
 
+def mock_entry_points(**params):
+
+    """Load a fixed set of entry points without a package.
+
+    ``click-plugins`` needs to exercise loading plugins, but managing a
+    one or more additional packages for testing this machinery is complicated.
+    Instead, this function mocks enough of the packaging machinery to present
+    a set of valid ``importlib.metadata.EntryPoint()`` objects.
+
+    :param **kwargs params:
+        Keyword arguments. See ``importlib.metadata.entry_points()``.
+
+    :rtype importlib.metadata.EntryPoints or tuple:
+
+    :returns:
+        Python 3.8 returns a ``tuple()`` of ``EntryPoint()`` objects. Other
+        versions of Python return a ``importlib.metadata.EntryPoints()``
+        object.
+    """
+
+    # This code is unfortunately a bit complicated. Different versions of
+    # Python have subtly different APIs. Hopefully Python 3.12 has provided
+    # stability. Some versions are more complete than others. Notably, Python
+    # 3.8 only supports the 'group' parameter.
+
+    if (3, 8) <= sys.version_info <= (3, 9) and params:
+        raise RuntimeError(
+            f"'entry_points()' on Python 3.8 and 3.9 does not accept"
+            f" parameters"
+        )
+
+    dist = VirtualDistribution(valid=True, invalid=True, extra_group=True)
+    virtual_eps = dist.entry_points
+
+    if sys.version_info >= (3, 12):
+        eps = importlib.metadata.EntryPoints(virtual_eps)
+        eps = eps.select(**params)
+
+    elif sys.version_info >= (3, 10):
+        from importlib.metadata import SelectableGroups
+        eps = SelectableGroups.load(virtual_eps)
+        if params:
+            eps = eps.select(**params)
+
+    elif sys.version_info >= (3, 8):
+
+        # Based on the CPython v3.10.13 source code. Ultimately a 'tuple()'
+        # of 'EntryPoint()' objects is returned.
+        #   Lib/importlib/metadata.py
+
+        by_group = defaultdict(list)
+        for e in virtual_eps:
+            by_group[e.group].append(e)
+
+        return dict(by_group)
+
+    else:
+        raise RuntimeError(
+            f'unsupported Python: {".".join(map(str, sys.version_info[:3]))}')
+
+    return eps
+
+
+def mock_entry_points_from_group(group):
+
+    """Shim for an API difference in older versions of Python."""
+
+    if sys.version_info >= (3, 10):
+        all_entry_points = mock_entry_points(group=group)
+
+    else:
+        all_entry_points = mock_entry_points()
+        all_entry_points = all_entry_points[group]
+
+    return all_entry_points
+
+
+class TestLoad(unittest.TestCase):
+
+    """Ensures plugins can be properly loaded."""
+
+    mapping = {
+        'click_plugins_tests.valid': (cmd1.name, cmd2.name),
+        'click_plugins_tests.invalid': (EP_NO_EXIST_KEY, )
+    }
+
+    def test_EntryPoint(self):
+
+        """Load a plugin from a single ``EntryPoint()`` object."""
+
+        for group, expected_keys in self.mapping.items():
+            entry_points = mock_entry_points_from_group(group)
+            for ep, key in zip(entry_points, expected_keys):
+
+                @with_plugins(ep)
+                @click.group()
+                def group():
+                    """test_load_EntryPoint"""
+
+                self.assertEqual((key, ), tuple(group.commands.keys()))
+
+    def test_EntryPoint_objects(self):
+
+        """Load plugins from an iterable of ``EntryPoint()`` objects."""
+
+        for group, expected_keys in self.mapping.items():
+
+            @with_plugins(mock_entry_points_from_group(group))
+            @click.group()
+            def group():
+                """test_load_EntryPoint"""
+
+            self.assertEqual(expected_keys, tuple(group.commands.keys()))
+
+    @mock.patch("importlib.metadata.entry_points")
+    def test_entry_point_group_name(self, patched):
+
+        """Load plugins from an entry points group name."""
+
+        patched.side_effect = mock_entry_points
+
+        for group, expected_keys in self.mapping.items():
+
+            @with_plugins(group)
+            @click.group()
+            def group():
+                """test_load_entry_point_name"""
+
+            self.assertEqual(expected_keys, tuple(group.commands.keys()))
+
+
 class Tests(unittest.TestCase):
 
     def setUp(self):
@@ -119,8 +264,10 @@ class Tests(unittest.TestCase):
         # 'click' test runner.
         self.runner = CliRunner()
 
-        valid_dist = VirtualDistribution(valid=True, invalid=False)
-        invalid_dist = VirtualDistribution(valid=False, invalid=True)
+        valid_dist = VirtualDistribution(
+            valid=True, invalid=False, extra_group=False)
+        invalid_dist = VirtualDistribution(
+            valid=False, invalid=True, extra_group=False)
 
         self.valid_entry_points = valid_dist.entry_points
         self.invalid_entry_points = invalid_dist.entry_points
@@ -139,6 +286,7 @@ class Tests(unittest.TestCase):
             """Broken CLI group."""
         self.broken_cli = broken_cli
 
+    @mock.patch('importlib.metadata.entry_points', mock_entry_points)
     def test_registered(self):
 
         """Ensure the test plugins are properly registered.
@@ -147,7 +295,9 @@ class Tests(unittest.TestCase):
         correct.
         """
 
-        for eps in (self.valid_entry_points, self.invalid_entry_points):
+        for group in (
+                'click_plugins_tests.valid', 'click_plugins_tests.invalid'):
+            eps = mock_entry_points_from_group(group)
             self.assertGreaterEqual(len(eps), 1)
 
     def test_load_and_run(self):

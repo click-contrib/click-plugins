@@ -19,6 +19,8 @@ contains a file that users may vendor in order to use ``click-plugins``.
   and deploy ``click_plugins.py`` in their environment.
 * Error messages for broken plugins are now emitted to ``stderr`` instead of
   ``stdout``.
+* ``@with_plugins()`` accepts an entrypoint group name, an ``EntryPoint()``,
+  or a sequence of ``EntryPoint()`` instances.
 
 1.1.1.2 - 2025-06-24
 ====================
