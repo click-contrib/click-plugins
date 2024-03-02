@@ -393,6 +393,22 @@ class Tests(unittest.TestCase):
         self.assertIn('instance of', str(e.exception))
         self.assertIn('click.Group()', str(e.exception))
 
+    @mock.patch("importlib.metadata.entry_points")
+    def test_with_plugins_stacked(self, patched):
+
+        """Multiple ``@with_plugins()``."""
+
+        patched.side_effect = mock_entry_points
+
+        @with_plugins("click_plugins_tests.valid")
+        @with_plugins("click_plugins_tests.invalid")
+        @click.group()
+        def group():
+            """test_with_plugins_stacked"""
+
+        self.assertEqual(
+            sorted(group.commands.keys()), ['cmd1', 'cmd2', 'no_exist'])
+
 
 if __name__ == '__main__':
     unittest.main()

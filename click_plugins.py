@@ -74,6 +74,11 @@ def with_plugins(entry_points):
     >>> @click.group()
     >>> def group():
     ...     '''Group'''
+    >>>
+    >>> @with_plugins("group1")
+    >>> @with_plugins("group2")
+    >>> def group():
+    ...     '''Group'''
 
     :param str or EntryPoint or sequence[EntryPoint] entry_points:
         Entry point group name, a single ``importlib.metadata.EntryPoint()``,
