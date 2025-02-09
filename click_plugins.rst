@@ -1,3 +1,7 @@
+..
+    This file is part of 'click-plugins': https://github.com/click-contrib/click-plugins
+
+
 ``click-plugins``
 =================
 
@@ -136,7 +140,7 @@ License
 
 New BSD License
 
-Copyright (c) 2015-2024, Kevin D. Wurster, Sean C. Gillies
+Copyright (c) 2015-2025, Kevin D. Wurster, Sean C. Gillies
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
