@@ -1,202 +1,91 @@
-=============
 click-plugins
 =============
 
-An extension module for `click <https://github.com/mitsuhiko/click>`_ to register
-external CLI commands via setuptools entry-points.
+A method for registering plugins on command line interfaces built with
+`click`_.
 
 
-Why?
-----
-
-Lets say you develop a commandline interface and someone requests a new feature
-that is absolutely related to your project but would have negative consequences
-like additional dependencies, major refactoring, or maybe its just too domain
-specific to be supported directly.  Rather than developing a separate standalone
-utility you could offer up a `setuptools entry point <https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins>`_
-that allows others to use your commandline utility as a home for their related
-sub-commands.  You get to choose where these sub-commands or sub-groups CAN be
-registered but the plugin developer gets to choose they ARE registered.  You
-could have all plugins register alongside the core commands, in a special
-sub-group, across multiple sub-groups, or some combination.
-
-
-Enabling Plugins
-----------------
-
-For a more detailed example see the `examples <https://github.com/click-contrib/click-plugins/tree/master/example>`_ section.
-
-The only requirement is decorating ``click.group()`` with ``click_plugins.with_plugins()``
-which handles attaching external commands and groups.  In this case the core CLI developer
-registers CLI plugins from ``core_package.cli_plugins``.
-
-.. code-block:: python
-
-    from importlib.metadata import entry_points
-
-    import click
-    from click_plugins import with_plugins
-
-
-    @with_plugins(entry_points(group='core_package.cli_plugins'))
-    @click.group()
-    def cli():
-        """Commandline interface for yourpackage."""
-
-    @cli.command()
-    def subcommand():
-        """Subcommand that does something."""
-
-
-Developing Plugins
-------------------
-
-Plugin developers need to register their sub-commands or sub-groups to an
-entry-point in their ``setup.py`` that is loaded by the core package.
-
-.. code-block:: python
-
-    from setuptools import setup
-
-    setup(
-        name='yourscript',
-        version='0.1',
-        py_modules=['yourscript'],
-        install_requires=[
-            'click',
-        ],
-        entry_points='''
-            [core_package.cli_plugins]
-            cool_subcommand=yourscript.cli:cool_subcommand
-            another_subcommand=yourscript.cli:another_subcommand
-        ''',
-    )
-
-
-Broken and Incompatible Plugins
--------------------------------
-
-Any sub-command or sub-group that cannot be loaded is caught and converted to
-a ``click_plugins.core.BrokenCommand()`` rather than just crashing the entire
-CLI.  The short-help is converted to a warning message like:
-
-.. code-block:: console
-
-    Warning: could not load plugin. See ``<CLI> <command/group> --help``.
-
-and if the sub-command or group is executed the entire traceback is printed.
-
-
-Best Practices and Extra Credit
--------------------------------
-
-Opening a CLI to plugins encourages other developers to independently extend
-functionality independently but there is no guarantee these new features will
-be "on brand".  Plugin developers are almost certainly already using features
-in the core package the CLI belongs to so defining commonly used arguments and
-options in one place lets plugin developers reuse these flags to produce a more
-cohesive CLI.  If the CLI is simple maybe just define them at the top of
-``yourpackage/cli.py`` or for more complex packages something like
-``yourpackage/cli/options.py``.  These common options need to be easy to find
-and be well documented so that plugin developers know what variable to give to
-their sub-command's function and what object they can expect to receive.  Don't
-forget to document non-obvious callbacks.
-
-Keep in mind that plugin developers also have access to the parent group's
-``ctx.obj``, which is very useful for passing things like verbosity levels or
-config values around to sub-commands.
-
-Here's some code that sub-commands could re-use:
-
-.. code-block:: python
-
-    from multiprocessing import cpu_count
-
-    import click
-
-    jobs_opt = click.option(
-        '-j', '--jobs', metavar='CORES', type=click.IntRange(min=1, max=cpu_count()), default=1,
-        show_default=True, help="Process data across N cores."
-    )
-
-Plugin developers can access this with:
-
-.. code-block:: python
-
-    import click
-    import parent_cli_package.cli.options
-
-
-    @click.command()
-    @parent_cli_package.cli.options.jobs_opt
-    def subcommand(jobs):
-        """I do something domain specific."""
-
-
-Installation
-------------
-
-With ``pip``:
-
-.. code-block:: console
-
-    $ pip install click-plugins
-
-From source:
-
-.. code-block:: console
-
-    $ git clone https://github.com/click-contrib/click-plugins.git
-    $ cd click-plugins
-    $ python setup.py install
-
-
-Developing
-----------
-
-Check out the source code:
-
-.. code-block:: console
-
-    $ git clone https://github.com/click-contrib/click-plugins.git
-    $ cd click-plugins
-
-A Python virtual environment is recommended for development:
-
-.. code-block:: console
-
-    $ python3 -m venv venv
-    $ source venv/bin/activate
-    $ (venv) pip install -e '.[dev]'
-    $ (venv) pytest tests --cov click_plugins --cov-report term-missing
-
-Tests can be executed with:
-
-.. code-block:: console
-
-    $ (venv) python3 -m unittest click_plugins_tests.py
-
-or a full test across all supported versions of ``click`` and Python with:
-
-.. code-block:: console
-
-    $ (venv) pip install 'tox>=4'
-    $ (venv) tox
-
-
-Changelog
----------
-
-See ``CHANGES.txt``
-
-
-Authors
+History
 -------
 
-See ``AUTHORS.txt``
+This project was originally distributed as the `click-plugins <https://pypi.org/project/click-plugins/>`_
+package via the Python Package Index. That package still exists, but will not
+be updated. Instead, users should vendor files from this repository in order
+to use ``click-plugins``. See `click_plugins.rst <click_plugins.rst>`_ for more
+information.
+
+This project is no longer actively maintained, but has been structured for
+maximum longevity. It has no dependencies aside from `click`_, and does not
+offer any mechanism for building a package. Users are free to vendor, and
+modify as needed in accordance with the license. Users are also free to build
+their own package.
+
+Users may want to treat this project as a reference for their own
+implementation.
 
 
-License
--------
+Maintainers
+-----------
 
-See ``LICENSE.txt``
+At times, the maintainers of this project **may** make small changes to keep
+the project alive.
+
+
+Environment
+~~~~~~~~~~~
+
+A Python virtual environment works well.
+
+.. code-block:: console
+
+    $ python -m venv venv
+    (venv) $ pip install click
+
+
+Testing
+~~~~~~~
+
+Tests are built and executed using Python's builtin `unittest <https://docs.python.org/3/library/unittest.html>`_
+library.
+
+.. code-block::
+
+    (venv) $ python -m unittest click_plugins_tests.py
+
+`tox <https://tox.wiki>`_ (see `tox.ini <tox.ini>`_) can be used to test
+multiple versions of Python and `click`_. The goal is to support as many
+versions of Python and `click`_ as reasonably possible, including versions
+that are potentially no longer
+officially supported by Python Software Foundation or the `click`_ maintainers.
+Versions that have reached end of life and and are difficult to support may be
+dropped.
+
+.. code-block::
+
+    (venv) $ pip install tox
+    (venv) $ tox
+
+
+Documentation
+~~~~~~~~~~~~~
+
+This project uses `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_,
+but users who do not support this markup language will not be able to process
+`click_plugins.rst <click_plugins.rst>`_ when building documentation. Most
+users can probably support a HTML file, which can be rendered with:
+
+.. code-block:: console
+
+    (venv) $ docutils click_plugins.rst click_plugins.html
+
+
+Release
+~~~~~~~
+
+* Consider bumping the version in `click_plugins.py <click_plugins.py>`_ based
+  on the magnitude of the change.
+* Build and check in a new version of the documentation.
+* Update `CHANGES.rst <CHANGES.rst>`_.
+
+
+.. _click: https://palletsprojects.com/projects/click/
