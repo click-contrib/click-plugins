@@ -8,6 +8,7 @@ Changelog
 Final release. Repository now serves as a reference implementation, and
 contains a file that users may vendor in order to use ``click-plugins``.
 
+* Handle ``click`` version ``8.2.0`` behavior change in tests.
 * Migrate from the deprecated ``pkg_resources.iter_entry_points()`` to
   ``importlib.metadata.entry_points()``.
 * Convert ``click_plugins/`` to a single ``click_plugins.py`` file. Users may

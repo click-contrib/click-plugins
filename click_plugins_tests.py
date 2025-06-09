@@ -38,6 +38,7 @@ from collections import defaultdict
 import configparser
 import importlib.metadata
 from io import StringIO
+import importlib.metadata
 import os
 import sys
 import unittest
@@ -47,6 +48,57 @@ import click
 from click.testing import CliRunner
 
 from click_plugins import _module, with_plugins
+
+
+###############################################################################
+# Version-Specific Behavior
+
+def _click_version():
+
+    """Attempt to parse :attr:`click.__version__` into a friendly construct.
+
+    Unfortunately, the Python standard library offers no method for comparing
+    version strings. The official recommended approach is to use the
+    `packaging <https://pypi.org/project/packaging/>`_ module, however
+    ``click-plugins`` strives to only use libraries available in the standard
+    library.
+
+    This implementation is incomplete. Only the major and minor components are
+    extracted and converted to integers. The idea is that we only have to
+    be aware of a specific version of :mod:`click`.
+    """
+
+    # 'click.__version__' will be removed in v9
+    click_version = importlib.metadata.version('click')
+
+    parsed = []
+    for part in click_version.split('.'):
+
+        if not part.isdigit():
+            raise RuntimeError(f'unexpected version: {click_version}')
+
+        elif part.isdigit():
+            parsed.append(int(part))
+
+        if len(parsed) >= 2:
+            break
+
+    return tuple(parsed)
+
+
+# In some configurations, executing a 'click' CLI will print help information
+# and exit if no arguments are given. 'click' v8.2.0 changed the behavior from
+# exit code 0 to 2.
+#
+#   https://github.com/pallets/click/blob/main/CHANGES.rst#version-820
+#
+if _click_version() < (8, 2):
+    EXIT_CODE_NO_ARGS_IS_HELP = 0
+else:
+    EXIT_CODE_NO_ARGS_IS_HELP = 2
+
+
+del _click_version
 
 
 ###############################################################################
@@ -340,10 +392,16 @@ class Tests(unittest.TestCase):
 
         """Load functional plugins and execute."""
 
+        # Arguments and expected exit codes.
+        mapping = {
+            None: EXIT_CODE_NO_ARGS_IS_HELP,
+            ('--help', ): 0
+        }
+
         # Ensure parent group is functional
-        for args in (None, ['--help']):
+        for args, expected_exit_code in mapping.items():
             parent_result = self.runner.invoke(self.good_cli, args)
-            self.assertEqual(0, parent_result.exit_code)
+            self.assertEqual(parent_result.exit_code, expected_exit_code)
 
             # When a plugin is broken its help text is replaced and contains
             # an indicator that something is not right. This indicator should
@@ -360,10 +418,16 @@ class Tests(unittest.TestCase):
 
         """Load broken plugins and execute."""
 
+        # Arguments and expected exit codes.
+        mapping = {
+            None: EXIT_CODE_NO_ARGS_IS_HELP,
+            ('--help', ): 0
+        }
+
         # Ensure parent group is functional
-        for args in (None, ['--help']):
+        for args, expected_exit_code in mapping.items():
             parent_result = self.runner.invoke(self.broken_cli, args)
-            self.assertEqual(0, parent_result.exit_code)
+            self.assertEqual(parent_result.exit_code, expected_exit_code)
 
             # The output from executing the parent command should have an
             # indicator that something is wrong.
@@ -394,7 +458,7 @@ class Tests(unittest.TestCase):
         # The 'subgroup()' is empty, but should not interfere with already
         # registered plugins.
         result = self.runner.invoke(self.good_cli)
-        self.assertEqual(0, result.exit_code)
+        self.assertEqual(result.exit_code, EXIT_CODE_NO_ARGS_IS_HELP)
         self.assertIn(subgroup.name, result.output)
         for ep in self.valid_entry_points:
             self.assertIn(ep.name, result.output)
@@ -406,7 +470,7 @@ class Tests(unittest.TestCase):
 
         # Same as above, but the subgroup also has plugins.
         result = self.runner.invoke(self.good_cli, ['subgroup-with-plugins'])
-        self.assertEqual(0, result.exit_code)
+        self.assertEqual(result.exit_code, EXIT_CODE_NO_ARGS_IS_HELP)
         for ep in self.valid_entry_points:
             self.assertIn(ep.name, result.output)
 
