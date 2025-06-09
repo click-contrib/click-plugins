@@ -73,7 +73,15 @@ users can probably support a HTML file, which can be rendered with:
 
 .. code-block:: console
 
-    $ docutils click_plugins.rst click_plugins.html
+    $ docutils \
+        click_plugins.rst \
+        click_plugins.html \
+        --date \
+        --leave-comments \
+        --no-generator \
+        --no-source-link \
+        --stylesheet-path "" \
+        --root-prefix ./
 
 
 Release
