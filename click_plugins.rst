@@ -106,7 +106,7 @@ Register your ``click.Command()`` or ``click.Group()`` as an
 The exact mechanism depends on your packaging choices, but for a
 ``pyproject.toml`` with ``setuptools`` as a backend, it looks like:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.setuptools.dynamic]
     entry-points =
@@ -115,7 +115,7 @@ The exact mechanism depends on your packaging choices, but for a
 If ``click_plugins`` had a ``plugins.py`` submodule, it might contain a
 plugin structured as the ``click.Command()`` below:
 
-.. code-block::
+.. code-block:: python
 
     import click
 
@@ -128,7 +128,7 @@ plugin structured as the ``click.Command()`` below:
 
 This would be attached to an entry point like:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.setuptools.dynamic]
     entry-points =

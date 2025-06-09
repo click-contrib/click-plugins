@@ -50,7 +50,7 @@ Testing
 Tests are built and executed using Python's builtin `unittest <https://docs.python.org/3/library/unittest.html>`_
 library.
 
-.. code-block::
+.. code-block:: console
 
     $ python -m unittest click_plugins_tests.py
 
