@@ -2,13 +2,7 @@
 click-plugins
 =============
 
-.. image:: https://travis-ci.org/click-contrib/click-plugins.svg?branch=master
-    :target: https://travis-ci.org/click-contrib/click-plugins?branch=master
-
-.. image:: https://coveralls.io/repos/click-contrib/click-plugins/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/click-contrib/click-plugins?branch=master
-
-An extension module for `click <https://github.com/mitsuhiko/click>`_ to register
+An extension module for `click <https://github.com/pallets/click>`_ to register
 external CLI commands via setuptools entry-points.
 
 
