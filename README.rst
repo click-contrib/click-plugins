@@ -79,8 +79,8 @@ users can probably support a HTML file, which can be rendered with:
 Release
 ~~~~~~~
 
-* Consider bumping the version in `click_plugins.py <click_plugins.py>`_ based
-  on the magnitude of the change.
+* Consider bumping the version in `click_plugins.py`_ and `click_plugins.rst`_
+  based on the magnitude of the change.
 * Build and check in a new version of the documentation.
 * Update `CHANGES.rst <CHANGES.rst>`_.
 

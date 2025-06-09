@@ -1,5 +1,5 @@
 ..
-    This file is part of 'click-plugins': https://github.com/click-contrib/click-plugins
+    This file is part of 'click-plugins' version 2.0: https://github.com/click-contrib/click-plugins
 
 
 ``click-plugins``
