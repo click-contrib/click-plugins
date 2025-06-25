@@ -33,7 +33,7 @@
 
 """Support CLI plugins with click and entry points.
 
-See 'with_plugins()'.
+See :func:`with_plugins`.
 """
 
 
@@ -45,7 +45,7 @@ import traceback
 import click
 
 
-__version__ = '2.0dev'
+__version__ = '2.0'
 
 
 def with_plugins(entry_points):
