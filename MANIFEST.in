@@ -1,7 +1,0 @@
-include AUTHORS.txt
-include CHANGES.md
-include LICENSE.txt
-include MANIFEST.in
-include README.rst
-include setup.py
-recursive-include tests *.py

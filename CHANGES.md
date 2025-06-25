@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0 - TBD
+---------
+
+Final release. Repository now serves as a reference implementation, and
+contains a file that users may vendor in order to use `click-plugins`.
+
 1.1.1.2 - 2025-06-24
 --------------------
 

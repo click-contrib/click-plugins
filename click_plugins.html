@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>click-plugins</title>
+
+</head>
+<body class="with-toc">
+<main id="click-plugins">
+<h1 class="title"><span class="docutils literal"><span class="pre">click-plugins</span></span></h1>
+
+<!-- This file is part of 'click-plugins' version 2.0: https://github.com/click-contrib/click-plugins -->
+<p>Load <a class="reference external" href="https://click.palletsprojects.com/">click</a> commands from
+<a class="reference external" href="https://docs.python.org/3/library/importlib.metadata.html#entry-points">entry points</a>.
+Allows a click-based command line interface to load commands from external
+packages.</p>
+<nav class="contents" id="table-of-contents" role="doc-toc">
+<p class="topic-title"><a class="reference internal" href="#top">Table of Contents</a></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#what-is-a-plugin" id="toc-entry-1">What is a plugin?</a></p></li>
+<li><p><a class="reference internal" href="#why-would-i-want-a-plugin" id="toc-entry-2">Why would I want a plugin?</a></p></li>
+<li><p><a class="reference internal" href="#i-am-a-developer-wanting-to-support-plugins-on-my-cli" id="toc-entry-3">I am a developer wanting to support plugins on my CLI</a></p>
+<ul>
+<li><p><a class="reference internal" href="#support" id="toc-entry-4">Support</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#i-am-a-plugin-author" id="toc-entry-5">I am a plugin author</a></p></li>
+<li><p><a class="reference internal" href="#license" id="toc-entry-6">License</a></p></li>
+</ul>
+</nav>
+<section id="what-is-a-plugin">
+<h2><a class="toc-backref" href="#toc-entry-1" role="doc-backlink">What is a plugin?</a></h2>
+<p>A plugin is similar to installing and importing a Python package, except the
+code conforms to a specific protocol, and is loaded through other means.</p>
+</section>
+<section id="why-would-i-want-a-plugin">
+<h2><a class="toc-backref" href="#toc-entry-2" role="doc-backlink">Why would I want a plugin?</a></h2>
+<p>Library developers providing a command line interface can load plugins to
+extend its features by allowing other developers to register additional
+commands or groups. This allows for an extensible command line, and a natural
+home for commands that aren't a great fit for the primary CLI, but belong in
+the broader ecosystem. For example, a plugin might provide a more advanced set
+of features, but require additional dependencies.</p>
+</section>
+<section id="i-am-a-developer-wanting-to-support-plugins-on-my-cli">
+<h2><a class="toc-backref" href="#toc-entry-3" role="doc-backlink">I am a developer wanting to support plugins on my CLI</a></h2>
+<p>A <a class="reference external" href="https://pypi.org/project/click-plugins/">click-plugins</a> package exists on
+the Python Package Index. This is an older version that is no longer supported
+and will not be updated. Instead, developers should vendor
+<span class="docutils literal">click_plugins.py</span>, and consider vendoring <span class="docutils literal">click_plugins_tests.py</span>, and
+<span class="docutils literal">click_plugins.rst</span>. Alternatively, developers are free to use this project
+as a reference for their own implementation, or make modifications in
+accordance with the license.</p>
+<p>Some considerations for vendoring are speed, and packaging. Entrypoints are
+known to be slow to load, and some alternative approaches exist at the cost of
+additional dependencies, or assumptions about what happens when a plugin fails
+to load. Vendoring <span class="docutils literal"><span class="pre">click-plugins</span></span> might include changing the entry point
+loading mechanism to one that is more appropriate for your use. Python
+packaging can be quite complicated in some cases, and vendoring may require
+adjustments for your specific packaging setup.</p>
+<p>In order to support loading plugins, developers must document where their
+library is looking for entry points. Exactly how to do this varies based on
+packaging tooling, but it is supported by <a class="reference external" href="https://setuptools.pypa.io/en/latest/userguide/entry_point.html">setuptools</a>.
+A project may offer several entry points allowing plugins to choose where they
+are registered in the CLI. Including the package name in the entrypoint is
+good, so an example might look like <span class="docutils literal">package.plugins</span> or
+<span class="docutils literal">package.subcommand.plugins</span>. If <span class="docutils literal"><span class="pre">click-plugins</span></span> offered plugins, it might
+want to register them at <span class="docutils literal">click_plugins.plugins</span>.</p>
+<p>This entry point should be associated with a <span class="docutils literal">click.Group()</span> where the
+plugins will live:</p>
+<pre class="code python literal-block"><code><span class="keyword namespace">from</span><span class="whitespace"> </span><span class="name namespace">click</span><span class="whitespace">
+</span><span class="keyword namespace">from</span><span class="whitespace"> </span><span class="name namespace">click_plugins</span><span class="whitespace"> </span><span class="keyword namespace">import</span> <span class="name">with_plugins</span><span class="whitespace">
+
+</span><span class="name decorator">&#64;with_plugins</span><span class="punctuation">(</span><span class="literal string single">'example.entry.point'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="name decorator">&#64;click</span><span class="operator">.</span><span class="name">group</span><span class="punctuation">(</span><span class="literal string single">'External plugins'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="keyword">def</span><span class="whitespace"> </span><span class="name function">group</span><span class="punctuation">():</span><span class="whitespace">
+</span>    <span class="operator">...</span></code></pre>
+<p><span class="docutils literal">click_plugins.with_plugins()</span> has a docstring describing alternate
+invocations.</p>
+<p>Some developers use <span class="docutils literal"><span class="pre">click-plugins</span></span> as an easy way to assemble the CLI for
+their project in addition to supporting plugins. This approach does work, but
+can cause CLI startup to be slow. Developers taking this approach might
+consider entry point for the primary CLI, and one for plugins.</p>
+<p>Packages offering plugins of the same name will experience collisions.</p>
+<section id="support">
+<h3><a class="toc-backref" href="#toc-entry-4" role="doc-backlink">Support</a></h3>
+<p>Offering a home for plugins comes with a certain amount of support. The primary
+CLI author is likely to sometimes receive bug reports or feature requests for
+plugins that are not part of the core project. <span class="docutils literal"><span class="pre">click-plugins</span></span> attempts to
+gracefully handle plugins that fail to load, and nudges the user towards the
+plugin author, but the plugin origin may at times not be clear. Consider that
+your users are primarily interacting with your CLI, but may be experiencing
+problems with a plugin, or even a bad interaction between plugins. It may be
+worth including a brief description about this in your documentation to help
+users report issues to the correct location.</p>
+</section>
+</section>
+<section id="i-am-a-plugin-author">
+<h2><a class="toc-backref" href="#toc-entry-5" role="doc-backlink">I am a plugin author</a></h2>
+<p>Register your <span class="docutils literal">click.Command()</span> or <span class="docutils literal">click.Group()</span> as an
+<a class="reference external" href="https://setuptools.pypa.io/en/latest/userguide/entry_point.html">entry point</a>.
+The exact mechanism depends on your packaging choices, but for a
+<span class="docutils literal">pyproject.toml</span> with <span class="docutils literal">setuptools</span> as a backend, it looks like:</p>
+<pre class="code toml literal-block"><code><span class="keyword">[tool.setuptools.dynamic]</span><span class="whitespace">
+</span><span class="name">entry-points</span><span class="whitespace"> </span><span class="operator">=</span><span class="whitespace">
+    </span><span class="error">name = library.submodule:object</span></code></pre>
+<p>If <span class="docutils literal">click_plugins</span> had a <span class="docutils literal">plugins.py</span> submodule, it might contain a
+plugin structured as the <span class="docutils literal">click.Command()</span> below:</p>
+<pre class="code python literal-block"><code><span class="keyword namespace">import</span><span class="whitespace"> </span><span class="name namespace">click</span><span class="whitespace">
+
+</span><span class="name decorator">&#64;click</span><span class="operator">.</span><span class="name">command</span><span class="punctuation">(</span><span class="literal string single">'uppercase'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="keyword">def</span><span class="whitespace"> </span><span class="name function">uppercase</span><span class="punctuation">():</span><span class="whitespace">
+    </span><span class="literal string doc">&quot;&quot;&quot;Echo stdin in uppercase.&quot;&quot;&quot;</span><span class="whitespace">
+</span>    <span class="keyword">with</span> <span class="name">click</span><span class="operator">.</span><span class="name">get_text_stream</span><span class="punctuation">(</span><span class="literal string single">'stdin'</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>        <span class="keyword">for</span> <span class="name">line</span> <span class="operator word">in</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>            <span class="name">click</span><span class="operator">.</span><span class="name">echo</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">upper</span><span class="punctuation">())</span></code></pre>
+<p>This would be attached to an entry point like:</p>
+<pre class="code toml literal-block"><code><span class="keyword">[tool.setuptools.dynamic]</span><span class="whitespace">
+</span><span class="name">entry-points</span><span class="whitespace"> </span><span class="operator">=</span><span class="whitespace">
+    </span><span class="error">bold = click</span><span class="literal number integer">_</span><span class="name">plugins</span><span class="punctuation">.</span><span class="name">plugins</span><span class="error">:</span><span class="name">bold</span></code></pre>
+</section>
+<section id="license">
+<h2><a class="toc-backref" href="#toc-entry-6" role="doc-backlink">License</a></h2>
+<p>New BSD License</p>
+<p>Copyright (c) 2015-2025, Kevin D. Wurster, Sean C. Gillies
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<ul class="simple">
+<li><p>Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.</p></li>
+<li><p>Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.</p></li>
+<li><p>Neither click-plugins nor the names of its contributors may not be used to
+endorse or promote products derived from this software without specific prior
+written permission.</p></li>
+</ul>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</section>
+</main>
+<footer>
+<p>Generated on: 2025-06-09.
+</p>
+</footer>
+</body>
+</html>
