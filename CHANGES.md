@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.1.2 - 2025-06-24
+--------------------
+
+- Add a clear note stating that the package is no longer maintained, but the library can be vendored.
+
 1.1.1.1 - 2025-06-24
 --------------------
 

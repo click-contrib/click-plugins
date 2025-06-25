@@ -2,6 +2,10 @@
 click-plugins
 =============
 
+This PyPI package is no longer actively maintained, but the underlying
+library can be vendored. See `homepage <https://github.com/click-contrib/click-plugins>`_
+for more information.
+
 An extension module for `click <https://github.com/pallets/click>`_ to register
 external CLI commands via setuptools entry-points.
 
