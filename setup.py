@@ -42,7 +42,7 @@ setup(
     classifiers=[
         'Topic :: Utilities',
         'Intended Audience :: Developers',
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
