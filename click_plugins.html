@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.22.3: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>click-plugins</title>
 
@@ -70,13 +70,21 @@ good, so an example might look like <span class="docutils literal">package.plugi
 want to register them at <span class="docutils literal">click_plugins.plugins</span>.</p>
 <p>This entry point should be associated with a <span class="docutils literal">click.Group()</span> where the
 plugins will live:</p>
-<pre class="code python literal-block"><code><span class="keyword namespace">from</span><span class="whitespace"> </span><span class="name namespace">click</span><span class="whitespace">
-</span><span class="keyword namespace">from</span><span class="whitespace"> </span><span class="name namespace">click_plugins</span><span class="whitespace"> </span><span class="keyword namespace">import</span> <span class="name">with_plugins</span><span class="whitespace">
+<aside class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">click_plugins.rst</span>, line 66)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">.. code-block:: python
 
-</span><span class="name decorator">&#64;with_plugins</span><span class="punctuation">(</span><span class="literal string single">'example.entry.point'</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="name decorator">&#64;click</span><span class="operator">.</span><span class="name">group</span><span class="punctuation">(</span><span class="literal string single">'External plugins'</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="keyword">def</span><span class="whitespace"> </span><span class="name function">group</span><span class="punctuation">():</span><span class="whitespace">
-</span>    <span class="operator">...</span></code></pre>
+    from click
+    from click_plugins import with_plugins
+
+    &#64;with_plugins('example.entry.point')
+    &#64;click.group('External plugins')
+    def group():
+        ...
+
+</pre>
+</aside>
 <p><span class="docutils literal">click_plugins.with_plugins()</span> has a docstring describing alternate
 invocations.</p>
 <p>Some developers use <span class="docutils literal"><span class="pre">click-plugins</span></span> as an easy way to assemble the CLI for
@@ -103,23 +111,45 @@ users report issues to the correct location.</p>
 <a class="reference external" href="https://setuptools.pypa.io/en/latest/userguide/entry_point.html">entry point</a>.
 The exact mechanism depends on your packaging choices, but for a
 <span class="docutils literal">pyproject.toml</span> with <span class="docutils literal">setuptools</span> as a backend, it looks like:</p>
-<pre class="code toml literal-block"><code><span class="keyword">[tool.setuptools.dynamic]</span><span class="whitespace">
-</span><span class="name">entry-points</span><span class="whitespace"> </span><span class="operator">=</span><span class="whitespace">
-    </span><span class="error">name = library.submodule:object</span></code></pre>
+<aside class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">click_plugins.rst</span>, line 109)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">.. code-block:: toml
+
+    [tool.setuptools.dynamic]
+    entry-points =
+        name = library.submodule:object
+</pre>
+</aside>
 <p>If <span class="docutils literal">click_plugins</span> had a <span class="docutils literal">plugins.py</span> submodule, it might contain a
 plugin structured as the <span class="docutils literal">click.Command()</span> below:</p>
-<pre class="code python literal-block"><code><span class="keyword namespace">import</span><span class="whitespace"> </span><span class="name namespace">click</span><span class="whitespace">
+<aside class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">click_plugins.rst</span>, line 118)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">.. code-block:: python
 
-</span><span class="name decorator">&#64;click</span><span class="operator">.</span><span class="name">command</span><span class="punctuation">(</span><span class="literal string single">'uppercase'</span><span class="punctuation">)</span><span class="whitespace">
-</span><span class="keyword">def</span><span class="whitespace"> </span><span class="name function">uppercase</span><span class="punctuation">():</span><span class="whitespace">
-    </span><span class="literal string doc">&quot;&quot;&quot;Echo stdin in uppercase.&quot;&quot;&quot;</span><span class="whitespace">
-</span>    <span class="keyword">with</span> <span class="name">click</span><span class="operator">.</span><span class="name">get_text_stream</span><span class="punctuation">(</span><span class="literal string single">'stdin'</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
-</span>        <span class="keyword">for</span> <span class="name">line</span> <span class="operator word">in</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
-</span>            <span class="name">click</span><span class="operator">.</span><span class="name">echo</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">upper</span><span class="punctuation">())</span></code></pre>
+    import click
+
+    &#64;click.command('uppercase')
+    def uppercase():
+        &quot;&quot;&quot;Echo stdin in uppercase.&quot;&quot;&quot;
+        with click.get_text_stream('stdin') as f:
+            for line in f:
+                click.echo(f.upper())
+</pre>
+</aside>
 <p>This would be attached to an entry point like:</p>
-<pre class="code toml literal-block"><code><span class="keyword">[tool.setuptools.dynamic]</span><span class="whitespace">
-</span><span class="name">entry-points</span><span class="whitespace"> </span><span class="operator">=</span><span class="whitespace">
-    </span><span class="error">bold = click</span><span class="literal number integer">_</span><span class="name">plugins</span><span class="punctuation">.</span><span class="name">plugins</span><span class="error">:</span><span class="name">bold</span></code></pre>
+<aside class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<span class="docutils literal">click_plugins.rst</span>, line 131)</p>
+<p>Cannot analyze code. Pygments package not found.</p>
+<pre class="literal-block">.. code-block:: toml
+
+    [tool.setuptools.dynamic]
+    entry-points =
+        bold = click_plugins.plugins:bold
+
+</pre>
+</aside>
 </section>
 <section id="license">
 <h2><a class="toc-backref" href="#toc-entry-6" role="doc-backlink">License</a></h2>
@@ -128,16 +158,16 @@ plugin structured as the <span class="docutils literal">click.Command()</span> b
 All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:</p>
-<ul class="simple">
+<ol class="arabic simple">
 <li><p>Redistributions of source code must retain the above copyright notice, this
 list of conditions and the following disclaimer.</p></li>
 <li><p>Redistributions in binary form must reproduce the above copyright notice,
 this list of conditions and the following disclaimer in the documentation
 and/or other materials provided with the distribution.</p></li>
-<li><p>Neither click-plugins nor the names of its contributors may not be used to
-endorse or promote products derived from this software without specific prior
-written permission.</p></li>
-</ul>
+<li><p>Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.</p></li>
+</ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -151,7 +181,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 </section>
 </main>
 <footer>
-<p>Generated on: 2025-06-09.
+<p>Generated on: 2025-11-23.
 </p>
 </footer>
 </body>
