@@ -5,34 +5,26 @@ Changelog
 2.0 - 2025-06-24
 ================
 
-Final release. Repository now serves as a reference implementation, and
-contains a file that users may vendor in order to use ``click-plugins``.
+Final release. Repository now serves as a reference implementation, and contains a file that users may vendor in order to use ``click-plugins``.
 
 * Handle ``click`` version ``8.2.0`` behavior change in tests.
-* Migrate from the deprecated ``pkg_resources.iter_entry_points()`` to
-  ``importlib.metadata.entry_points()``.
-* Convert ``click_plugins/`` to a single ``click_plugins.py`` file. Users may
-  copy this file into their project to use ``click-plugins``.
-* Drop Travis-CI and optionally use `Tox <https://tox.wiki>`_ for a full test
-  matrix. This project is winding down and no longer needs a CI system.
-* Use ``unittest`` instead of ``pytest`` for tests. This eliminates one direct
-  and several transitive dependencies, and makes it easier for users to test
-  and deploy ``click_plugins.py`` in their environment.
-* Error messages for broken plugins are now emitted to ``stderr`` instead of
-  ``stdout``.
-* ``@with_plugins()`` accepts an entrypoint group name, an ``EntryPoint()``,
-  or a sequence of ``EntryPoint()`` instances.
+* Migrate from the deprecated ``pkg_resources.iter_entry_points()`` to ``importlib.metadata.entry_points()``.
+* Convert ``click_plugins/`` to a single ``click_plugins.py`` file. Users may copy this file into their project to use ``click-plugins``.
+* Drop Travis-CI and optionally use `Tox <https://tox.wiki>`_ for a full test matrix. This project is winding down and no longer needs a CI system.
+* Use ``unittest`` instead of ``pytest`` for tests. This eliminates one direct and several transitive dependencies, and makes it easier for users to test and deploy ``click_plugins.py`` in their environment.
+* Error messages for broken plugins are now emitted to ``stderr`` instead of ``stdout``.
+* ``@with_plugins()`` accepts an entrypoint group name, an ``EntryPoint()``, or a sequence of ``EntryPoint()`` instances.
 * Remove ``pip`` packaging machinery. Users should vendor.
 
 1.1.1.2 - 2025-06-24
 ====================
 
-- Add a clear note stating that the package is no longer maintained, but the library can be vendored.
+* Add a clear note stating that the package is no longer maintained, but the library can be vendored.
 
 1.1.1.1 - 2025-06-24
 ====================
 
-- Mark the project as inactive.
+* Mark the project as inactive.
 
 1.1.1 - 2019-04-04
 ==================
@@ -42,45 +34,36 @@ contains a file that users may vendor in order to use ``click-plugins``.
 1.1 - 2019-04-04
 ================
 
-* `#25 <https://github.com/click-contrib/click-plugins/issues/25>`_ - Fix an
-  issue where a broken command's traceback would not be emitted.
-* `#28 <https://github.com/click-contrib/click-plugins/pull/28>`_ - Bump
-  required click version to ``click>=4``.
-* `#28 <https://github.com/click-contrib/click-plugins/pull/28>`_ - Runs Travis
-  tests for the latest release of ``click`` versions ``>=4,<8``
-  (approximately).
+* `#25 <https://github.com/click-contrib/click-plugins/issues/25>`_ - Fix an issue where a broken command's traceback would not be emitted.
+* `#28 <https://github.com/click-contrib/click-plugins/pull/28>`_ - Bump required click version to ``click>=4``.
+* `#28 <https://github.com/click-contrib/click-plugins/pull/28>`_ - Runs Travis tests for the latest release of ``click`` versions ``>=4,<8`` (approximately).
 
 1.0.4 - 2018-09-15
 ==================
 
-* `#9 <https://github.com/click-contrib/click-plugins/issues/19>`_ - Preemptive
-  fix for a breaking change in ``click`` v7. CLI command names generated from
-  functions with underscores will have dashes instead of underscores.
+* `#9 <https://github.com/click-contrib/click-plugins/issues/19>`_ - Preemptive fix for a breaking change in ``click`` v7. CLI command names generated from functions with underscores will have dashes instead of underscores.
 
 
 1.0.3 - 2016-01-05
 ==================
 
-* Include tests in ``MANIFEST.in``. See further discussion in
-  `#8 <https://github.com/click-contrib/click-plugins/pull/8>`_.
+* Include tests in ``MANIFEST.in``. See further discussion in `#8 <https://github.com/click-contrib/click-plugins/pull/8>`_.
 
 
 1.0.2 - 2015-09-23
 ------------------
 
 * General packaging and Travis-CI improvements.
-* `#8 <https://github.com/click-contrib/click-plugins/pull/8>`_ - Don't
-  include tests in ``MANIFEST.in``
+* `#8 <https://github.com/click-contrib/click-plugins/pull/8>`_ - Don't include tests in ``MANIFEST.in``
 
 
 1.0.1 - 2015-08-20
 ==================
 
-* `#5 <https://github.com/click-contrib/click-plugins/pull/5>`_ - Fixed a typo
-  in an error message.
+* `#5 <https://github.com/click-contrib/click-plugins/pull/5>`_ - Fixed a typo in an error message.
 
 
 1.0 - 2015-07-20
 ================
 
-- Initial release.
+* Initial release.

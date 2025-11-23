@@ -57,10 +57,9 @@ library.
 `tox <https://tox.wiki>`_ (see `tox.ini <tox.ini>`_) can be used to test
 multiple versions of Python and `click`_. The goal is to support as many
 versions of Python and `click`_ as reasonably possible, including versions
-that are potentially no longer
-officially supported by Python Software Foundation or the `click`_ maintainers.
-Versions that have reached end of life and and are difficult to support may be
-dropped.
+that are potentially no longer officially supported by Python Software
+Foundation or the `click`_ maintainers. Versions that have reached end of life
+and and are difficult to support may be dropped.
 
 
 Documentation
