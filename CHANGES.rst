@@ -2,6 +2,11 @@
 Changelog
 #########
 
+2.0.1 - 2025-11-23
+==================
+
+* `#41 <https://github.com/click-contrib/click-plugins/pull/43>`_ - Use canonical license wording.
+
 2.0 - 2025-06-24
 ================
 
